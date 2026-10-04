@@ -72,6 +72,18 @@ h2 { font-size: 22px; line-height: 1.3; }
 .has-error input, .has-error select, .has-error textarea { border-color: var(--bad); }
 .field-error { margin: 0; font-size: 13px; color: var(--bad); }
 .field-hint { margin: 0; font-size: 13px; color: var(--stone); }
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 48px; }
+.input-wrap input::-ms-reveal { display: none; }
+.reveal { position: absolute; top: 0; right: 0; width: 44px; height: 100%; display: grid; place-items: center; padding: 0; border: 0; background: none; color: var(--stone); cursor: pointer; }
+.reveal:hover { color: var(--ink); }
+.reveal:focus-visible { outline-offset: -4px; }
+.reveal svg { width: 20px; height: 20px; }
+.reveal::after {
+  content: attr(data-tip); position: absolute; right: 0; bottom: calc(100% + 6px); white-space: nowrap; pointer-events: none;
+  padding: 6px 9px; background: var(--night); color: #fff; font: 400 12px/1 var(--f-body), sans-serif; opacity: 0; transition: opacity .12s;
+}
+.reveal:hover::after, .reveal:focus-visible::after { opacity: 1; }
 .notice { margin: 0; padding: 12px 14px; font-size: 14px; border-left: 3px solid; }
 .notice-error { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
 .notice-success { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }

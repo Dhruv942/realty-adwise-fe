@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { idleState, type FormState } from "@/lib/types";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
+import { PasswordField } from "./PasswordField";
 import { SubmitButton } from "./SubmitButton";
 
 type Props = {
@@ -26,10 +27,9 @@ export function LoginForm({ action, next }: Props) {
         defaultValue={state.values?.email}
         error={state.fieldErrors?.email}
       />
-      <Field
+      <PasswordField
         label="Password"
         name="password"
-        type="password"
         autoComplete="current-password"
         required
         error={state.fieldErrors?.password}
