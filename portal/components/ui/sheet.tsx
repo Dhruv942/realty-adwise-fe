@@ -21,20 +21,20 @@ export function SheetContent({
 }) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 z-50 bg-slate-900/40" />
+      <Dialog.Overlay className="overlay fixed inset-0 z-50 bg-overlay" />
       <Dialog.Content
         aria-describedby={undefined}
         className={cn(
-          "fixed z-50 flex flex-col bg-card shadow-xl outline-none",
-          side === "left" && "inset-y-0 left-0 w-[85%] max-w-xs",
-          side === "bottom" && "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl pb-[env(safe-area-inset-bottom)]",
+          "fixed z-50 flex flex-col border-border bg-surface shadow-lg outline-none",
+          side === "left" && "sheet-left inset-y-0 left-0 w-[85%] max-w-xs border-r",
+          side === "bottom" && "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl border-t pb-[env(safe-area-inset-bottom)]",
           className,
         )}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-          <Dialog.Title className="font-display text-base font-light uppercase tracking-[.14em]">{title}</Dialog.Title>
-          <Dialog.Close className="grid size-11 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Close">
-            <X className="size-5" />
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border pl-4 pr-2">
+          <Dialog.Title className="font-display text-[15px] font-semibold">{title}</Dialog.Title>
+          <Dialog.Close className="grid size-11 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Close menu">
+            <X className="size-5" aria-hidden="true" />
           </Dialog.Close>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>

@@ -17,11 +17,10 @@ export default async function ManagersPage({ searchParams }: { searchParams: Sea
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Managers</h1>
         </div>
         <Link className="btn btn-solid" href="/admin/managers/new">
-          + New manager
+          New manager
         </Link>
       </div>
 
@@ -54,28 +53,72 @@ export default async function ManagersPage({ searchParams }: { searchParams: Sea
         )}
       </form>
 
-      <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {managers.map((m) => (
-          <li key={m.id}>
-            <Link href={`/admin/managers/${m.id}`} className="grid gap-3 rounded-2xl border border-border bg-card p-4 no-underline transition-colors hover:border-border-strong">
-              <div className="flex items-center justify-between gap-3">
-                <div className="person">
-                  <span className="avatar" aria-hidden="true">
-                    {m.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("")}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate">{m.name}</p>
-                    <p className="muted person-sub">@{m.username}</p>
+      <p className="muted result-count">
+        {managers.length} {managers.length === 1 ? "manager" : "managers"}
+        {filtered ? " found" : ""}
+      </p>
+
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col" className="hidden md:table-cell">Email</th>
+              <th scope="col" className="hidden lg:table-cell">Phone</th>
+              <th scope="col">Status</th>
+              <th scope="col" className="col-actions">
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {managers.map((m) => (
+              <tr key={m.id}>
+                <td>
+                  <div className="person">
+                    <span className="avatar" aria-hidden="true">
+                      {m.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("")}
+                    </span>
+                    <div className="min-w-0">
+                      <Link className="person-name" href={`/admin/managers/${m.id}`}>
+                        {m.name}
+                      </Link>
+                      <div className="muted person-sub">@{m.username}</div>
+                    </div>
                   </div>
-                </div>
-                <StatusBadge active={m.isActive} />
-              </div>
-              <p className="truncate text-sm text-muted-foreground">{m.email}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {managers.length === 0 && <p className="empty panel">{filtered ? "No managers match these filters." : "No managers yet. Create the first one."}</p>}
+                </td>
+                <td className="hidden md:table-cell">{m.email}</td>
+                <td className="hidden lg:table-cell">{m.phone ?? <span className="muted">—</span>}</td>
+                <td>
+                  <StatusBadge active={m.isActive} />
+                </td>
+                <td className="col-actions">
+                  <Link className="btn btn-line btn-sm" href={`/admin/managers/${m.id}`}>
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {managers.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty">
+                  {filtered ? (
+                    <>
+                      <strong>No managers match these filters</strong>
+                      <Link href="/admin/managers">Clear the filters</Link> to see everyone.
+                    </>
+                  ) : (
+                    <>
+                      <strong>No managers yet</strong>
+                      <Link href="/admin/managers/new">Create the first manager</Link>, then make them the manager of a team.
+                    </>
+                  )}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

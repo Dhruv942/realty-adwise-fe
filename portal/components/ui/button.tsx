@@ -4,20 +4,19 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-display text-xs uppercase tracking-[.2em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60 active:translate-y-px [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60 active:translate-y-px [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        outline: "border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-white",
+        default: "bg-primary text-primary-foreground hover:bg-primary/85",
+        outline: "border border-input bg-surface text-foreground hover:bg-muted",
         ghost: "text-foreground hover:bg-muted",
-        whatsapp: "bg-[#128c4a] text-white hover:bg-[#0e7a3f]",
-        danger: "border border-danger/30 bg-card text-danger hover:bg-danger hover:text-white",
+        danger: "border border-destructive/40 bg-surface text-destructive hover:border-destructive hover:bg-destructive-soft",
       },
       size: {
-        default: "h-11 px-4",
-        sm: "h-9 px-3",
-        icon: "size-11",
+        default: "h-10 px-3.5",
+        sm: "h-8 px-2.5 text-[13px]",
+        icon: "size-10",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

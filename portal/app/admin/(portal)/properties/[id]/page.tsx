@@ -39,7 +39,7 @@ export default async function PropertyPage({ params }: Props) {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/properties">
-            ← Properties
+            <span aria-hidden="true">←</span> Properties
           </Link>
           <h1>{property.name}</h1>
           <p className="muted">{property.location ?? "No location"}</p>
@@ -48,7 +48,7 @@ export default async function PropertyPage({ params }: Props) {
       </div>
 
       {property.needsAssignment && (
-        <p className="notice notice-error" role="status">
+        <p className="notice notice-warn" role="status">
           No executives are picked for this property.
           {property.pendingLeadCount > 0 && (
             <>
@@ -131,7 +131,7 @@ export default async function PropertyPage({ params }: Props) {
               action={setPropertyStatusAction.bind(null, property.id, !property.isActive)}
               label={property.isActive ? "Deactivate" : "Activate"}
               pendingLabel="Updating…"
-              variant={property.isActive ? "danger" : "solid"}
+              variant={property.isActive ? "line" : "solid"}
               confirm={property.isActive ? `Deactivate ${property.name}?` : undefined}
             />
           </section>

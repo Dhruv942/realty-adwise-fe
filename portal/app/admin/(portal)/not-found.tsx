@@ -1,15 +1,15 @@
-import Link from "next/link";
+import { NotFoundView } from "@/components/NotFoundView";
 
 export default function AdminNotFound() {
   return (
-    <div className="panel">
-      <h2>Not found</h2>
-      <p className="muted">This record doesn&apos;t exist or has been removed.</p>
-      <div>
-        <Link className="btn btn-line" href="/admin">
-          Back to overview
-        </Link>
-      </div>
-    </div>
+    <NotFoundView
+      title="This record doesn't exist"
+      message="It may have been deleted, or the link is wrong. Check the list it came from."
+      links={[
+        { href: "/admin", label: "Back to overview" },
+        { href: "/admin/leads", label: "Leads" },
+        { href: "/admin/properties", label: "Properties" },
+      ]}
+    />
   );
 }

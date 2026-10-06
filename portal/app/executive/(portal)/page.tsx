@@ -27,7 +27,6 @@ export default async function ExecutiveHome({ searchParams }: { searchParams: Pr
       <NewLeadWatcher newLeads={summary.newLeads} />
       <div className="page-head">
         <div>
-          <p className="eyebrow">Executive</p>
           <h1>
             My leads
             {summary.newLeads > 0 && <span className="tag-new">{summary.newLeads} new</span>}

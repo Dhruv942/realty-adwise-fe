@@ -22,11 +22,10 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Executives</h1>
         </div>
         <Link className="btn btn-solid" href="/admin/executives/new">
-          + New executive
+          New executive
         </Link>
       </div>
 
@@ -81,11 +80,13 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
           <thead>
             <tr>
               <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Team</th>
+              <th className="hidden md:table-cell">Email</th>
+              <th className="hidden lg:table-cell">Phone</th>
+              <th className="hidden sm:table-cell">Team</th>
               <th>Status</th>
-              <th className="col-actions">Actions</th>
+              <th className="col-actions">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -102,9 +103,9 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
                     </div>
                   </div>
                 </td>
-                <td>{exec.email}</td>
-                <td>{exec.phone ?? <span className="muted">—</span>}</td>
-                <td>{exec.team ? <Link href={`/admin/teams/${exec.team.id}`}>{exec.team.name}</Link> : <span className="muted">No team</span>}</td>
+                <td className="hidden md:table-cell">{exec.email}</td>
+                <td className="hidden lg:table-cell">{exec.phone ?? <span className="muted">—</span>}</td>
+                <td className="hidden sm:table-cell">{exec.team ? <Link href={`/admin/teams/${exec.team.id}`}>{exec.team.name}</Link> : <span className="muted">No team</span>}</td>
                 <td>
                   <StatusBadge active={exec.isActive} />
                 </td>
@@ -128,7 +129,17 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
             {executives.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty">
-                  {filtered ? "No executives match these filters." : "No executives yet."}
+                  {filtered ? (
+                    <>
+                      <strong>No executives match these filters</strong>
+                      <Link href="/admin/executives">Clear the filters</Link> to see everyone.
+                    </>
+                  ) : (
+                    <>
+                      <strong>No executives yet</strong>
+                      <Link href="/admin/executives/new">Add the first executive</Link> so leads can be assigned.
+                    </>
+                  )}
                 </td>
               </tr>
             )}

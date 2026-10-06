@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Phone } from "lucide-react";
+import { Clock, MessageCircle, Phone, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
@@ -69,13 +69,8 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
   const meta = [lead.requirement, lead.budget != null ? formatBudget(lead.budget) : null].filter(Boolean).join(" · ");
 
   return (
-    <article
-      className={cn(
-        "relative rounded-2xl border bg-card transition-colors",
-        important ? "border-amber-300 border-l-4 border-l-amber-400 bg-amber-50/50" : "border-border hover:border-border-strong",
-        lead.isNew && !important && "border-l-4 border-l-success",
-      )}
-    >
+    <article className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2.5 px-4 py-3.5 transition-colors hover:bg-muted/40 md:grid-cols-[minmax(0,1fr)_9.5rem_auto]">
+      {important && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-warning" />}
       <Link
         href={href}
         prefetch={false}
@@ -92,22 +87,34 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
             fired.current = false;
           }
         }}
-        className="block select-none rounded-t-2xl p-4 no-underline [-webkit-touch-callout:none]"
+        className="col-span-2 block min-w-0 select-none rounded-md no-underline [-webkit-touch-callout:none] md:col-span-1"
       >
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-xs text-muted-foreground">#{lead.leadNo}</span>
-          <LeadStatusBadge status={lead.status} />
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <h2 className="min-w-0 truncate !font-sans !text-[15px] !font-medium !tracking-normal">{lead.customer.name}</h2>
+          <span className="num text-xs text-muted-foreground">#{lead.leadNo}</span>
+          <span className="self-center md:hidden">
+            <LeadStatusBadge status={lead.status} />
+          </span>
           {lead.isNew && <span className="tag-new !ml-0">New</span>}
-          {important && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-display text-[10px] uppercase tracking-[.14em] text-amber-800">Important</span>}
+          {important && (
+            <span className="inline-flex items-center gap-1 self-center text-xs font-medium text-warning">
+              <Star className="size-3 fill-current" aria-hidden="true" />
+              Important
+            </span>
+          )}
         </div>
-        <h3 className="mt-2 truncate !font-normal !text-[17px] !tracking-normal">{lead.customer.name}</h3>
         <p className="mt-0.5 truncate text-sm text-muted-foreground">
-          {lead.property.name}
+          <span className="text-foreground">{lead.property.name}</span>
           {lead.property.location ? `, ${lead.property.location}` : ""}
+          {meta && ` · ${meta}`}
         </p>
-        {meta && <p className="mt-1 text-sm">{meta}</p>}
-        {deadline && <p className="mt-2 text-xs text-warning">Update the status by {deadline} or it moves to the next executive.</p>}
-        <p className="mt-2 text-xs text-muted-foreground">
+        {deadline && (
+          <p className="mt-1 flex items-start gap-1.5 text-xs font-medium text-warning">
+            <Clock className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+            Update the status by {deadline} or it moves to the next executive.
+          </p>
+        )}
+        <p className="mt-1 text-xs text-muted-foreground">
           {lead.source}
           {showExecutive && <> · {lead.assignedExecutive ? lead.assignedExecutive.name : "Unassigned"}</>}
           {" · "}
@@ -115,39 +122,42 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
         </p>
       </Link>
 
+      <div className="hidden min-w-0 md:block">
+        <LeadStatusBadge status={lead.status} />
+      </div>
 
-      <div className="grid grid-cols-2 gap-2 border-t border-border p-2.5">
+      <div className="col-span-2 flex items-center gap-1.5 md:col-span-1 md:justify-end">
         <a
           href={`tel:${lead.customer.mobile}`}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-border-strong font-display text-xs uppercase tracking-[.16em] no-underline hover:bg-muted"
+          aria-label={`Call ${lead.customer.name}`}
+          className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-input bg-surface px-2.5 text-[13px] font-medium no-underline transition-colors hover:bg-muted md:h-9 md:flex-none"
         >
-          <Phone className="size-4" /> Call
+          <Phone className="size-4" aria-hidden="true" /> Call
         </a>
         <a
           href={whatsappUrl(lead.customer.mobile)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#128c4a] font-display text-xs uppercase tracking-[.16em] text-white no-underline hover:bg-[#0e7a3f]"
+          aria-label={`WhatsApp ${lead.customer.name} (opens in a new tab)`}
+          className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-input bg-surface px-2.5 text-[13px] font-medium no-underline transition-colors hover:bg-muted md:h-9 md:flex-none"
         >
-          <MessageCircle className="size-4" /> WhatsApp
+          <MessageCircle className="size-4" aria-hidden="true" /> WhatsApp
         </a>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-pressed={important}
+          aria-label={important ? `Remove ${lead.customer.name} from important` : `Mark ${lead.customer.name} as important`}
+          data-tip={important ? "Remove from important" : "Mark as important"}
+          className={cn("tip tip-left grid size-10 shrink-0 place-items-center md:size-9 rounded-lg transition-colors hover:bg-muted", important ? "text-warning" : "text-muted-foreground hover:text-foreground")}
+        >
+          <Star className={cn("size-4", important && "fill-current")} aria-hidden="true" />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={toggle}
-        aria-pressed={important}
-        className="hidden h-10 w-full items-center justify-center border-t border-border font-display text-[11px] uppercase tracking-[.16em] text-muted-foreground hover:bg-muted hover:text-foreground sm:flex"
-      >
-        {important ? "Remove from important" : "Mark as important"}
-      </button>
-      {note && !error && (
-        <p role="status" className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
-          {note}
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="border-t border-border px-4 py-2 text-xs text-danger">
-          {error}
+
+      {(note || error) && (
+        <p role={error ? "alert" : "status"} className={cn("col-span-full text-xs", error ? "text-destructive" : "text-muted-foreground")}>
+          {error ?? note}
         </p>
       )}
     </article>

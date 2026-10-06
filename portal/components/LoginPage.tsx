@@ -36,11 +36,11 @@ export async function LoginPage({ role, searchParams }: Props) {
   return (
     <AuthLayout eyebrow={text.eyebrow} title={text.title} lede={text.lede}>
       <div>
-        <p className="eyebrow">{text.eyebrow} sign in</p>
-        <h2>Sign in</h2>
+        <h2>{text.eyebrow} sign in</h2>
+        <p className="muted mt-1 text-sm">Sign in with your work email and password.</p>
       </div>
       {expired && (
-        <p className="notice notice-error" role="status">
+        <p className="notice notice-warn" role="status">
           Your session has ended. Please sign in again.
         </p>
       )}

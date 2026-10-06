@@ -20,7 +20,6 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Teams</h1>
         </div>
       </div>
@@ -55,25 +54,25 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
               <thead>
                 <tr>
                   <th>Team</th>
-                  <th>Manager</th>
+                  <th className="hidden sm:table-cell">Manager</th>
                   <th>Executives</th>
                   <th>Status</th>
-                  <th>Created</th>
+                  <th className="hidden md:table-cell">Created</th>
                 </tr>
               </thead>
               <tbody>
                 {teams.map((team) => (
                   <tr key={team.id}>
                     <td>
-                      <Link href={`/admin/teams/${team.id}`}>{team.name}</Link>
-                      {team.description && <div className="muted">{team.description}</div>}
+                      <Link className="person-name" href={`/admin/teams/${team.id}`}>{team.name}</Link>
+                      {team.description && <div className="muted person-sub">{team.description}</div>}
                     </td>
-                    <td>{team.manager?.name ?? <span className="muted">None</span>}</td>
-                    <td>{team.executiveCount}</td>
+                    <td className="hidden sm:table-cell">{team.manager?.name ?? <span className="muted">None</span>}</td>
+                    <td className="num">{team.executiveCount}</td>
                     <td>
                       <StatusBadge active={team.isActive} />
                     </td>
-                    <td className="muted">{formatDate(team.createdAt)}</td>
+                    <td className="muted hidden whitespace-nowrap md:table-cell">{formatDate(team.createdAt)}</td>
                   </tr>
                 ))}
                 {teams.length === 0 && (

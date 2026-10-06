@@ -43,7 +43,7 @@ export default async function ExecutivePage({ params, searchParams }: Props) {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/executives">
-            ← Executives
+            <span aria-hidden="true">←</span> Executives
           </Link>
           <h1>{executive.name}</h1>
           <p className="muted">@{executive.username}</p>
@@ -97,7 +97,7 @@ export default async function ExecutivePage({ params, searchParams }: Props) {
           <section className="panel">
             <h2>Team</h2>
             {executive.team && !executive.team.isActive && (
-              <p className="notice notice-error">The current team is inactive.</p>
+              <p className="notice notice-warn">The current team is inactive.</p>
             )}
             {otherTeams.length > 0 ? (
               <AssignTeamForm

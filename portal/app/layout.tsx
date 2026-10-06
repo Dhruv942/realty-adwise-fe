@@ -1,24 +1,40 @@
 import type { Metadata, Viewport } from "next";
-import { Josefin_Sans, Jost } from "next/font/google";
+import { Archivo, Poppins } from "next/font/google";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
-const display = Josefin_Sans({ subsets: ["latin"], weight: ["200", "300", "400"], variable: "--f-display" });
-const body = Jost({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--f-body" });
+const display = Archivo({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--f-display", display: "swap" });
+const body = Poppins({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--f-body", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Realty Adwise Portal", template: "%s · Realty Adwise" },
-  robots: { index: false, follow: false },
+  description: "Internal portal for the Realty Adwise team to manage leads, properties, clients and executives.",
+  applicationName: "Realty Adwise",
+  // Private, signed-in portal: nothing here should be indexed. robots.ts says the same to crawlers.
+  robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
   appleWebApp: { capable: true, title: "Realty Adwise", statusBarStyle: "default" },
+  formatDetection: { telephone: false },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#fbfbf9" };
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f6f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0e0d" },
+  ],
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // Browser extensions (Grammarly, password managers, dark-mode tools) inject attributes into
-    // <html>/<body> before React hydrates; this silences those mismatches on these two tags only.
+    // suppressHydrationWarning: the theme script sets data-theme on <html> before React hydrates, and
+    // browser extensions inject attributes into <html>/<body>. It only silences these two tags.
     <html lang="en" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body suppressHydrationWarning>
         {children}
         <InstallPrompt />

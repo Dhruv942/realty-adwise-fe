@@ -15,7 +15,6 @@ export default async function SettingsPage() {
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Settings</h1>
         </div>
       </div>

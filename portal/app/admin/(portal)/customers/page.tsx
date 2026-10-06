@@ -20,7 +20,6 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Clients</h1>
         </div>
       </div>
@@ -47,9 +46,9 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
             <tr>
               <th>Name</th>
               <th>Mobile</th>
-              <th>Email</th>
-              <th>Type</th>
-              <th>Added</th>
+              <th className="hidden md:table-cell">Email</th>
+              <th className="hidden lg:table-cell">Type</th>
+              <th className="hidden sm:table-cell">Added</th>
             </tr>
           </thead>
           <tbody>
@@ -60,16 +59,26 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                     {c.name}
                   </Link>
                 </td>
-                <td>{c.mobile}</td>
-                <td>{c.email ?? <span className="muted">—</span>}</td>
-                <td>{c.type === "COMPANY" ? "Company" : "Individual"}</td>
-                <td className="muted">{formatDate(c.createdAt)}</td>
+                <td className="num whitespace-nowrap">{c.mobile}</td>
+                <td className="hidden md:table-cell">{c.email ?? <span className="muted">—</span>}</td>
+                <td className="hidden lg:table-cell">{c.type === "COMPANY" ? "Company" : "Individual"}</td>
+                <td className="muted hidden whitespace-nowrap sm:table-cell">{formatDate(c.createdAt)}</td>
               </tr>
             ))}
             {customers.length === 0 && (
               <tr>
                 <td colSpan={5} className="empty">
-                  {search ? "No clients match this search." : "No clients yet."}
+                  {search ? (
+                    <>
+                      <strong>No clients match “{search}”</strong>
+                      Check the spelling, or search by mobile number instead.
+                    </>
+                  ) : (
+                    <>
+                      <strong>No clients yet</strong>
+                      A client is created automatically from the first lead with a new mobile number.
+                    </>
+                  )}
                 </td>
               </tr>
             )}
@@ -78,11 +87,11 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
       </div>
 
       {(page > 1 || hasNext) && (
-        <div className="pager">
+        <nav className="pager" aria-label="Pagination">
           {page > 1 ? <Link className="btn btn-line btn-sm" href={href(page - 1)}>← Newer</Link> : <span />}
           <span className="muted">Page {page}</span>
           {hasNext ? <Link className="btn btn-line btn-sm" href={href(page + 1)}>Older →</Link> : <span />}
-        </div>
+        </nav>
       )}
     </>
   );

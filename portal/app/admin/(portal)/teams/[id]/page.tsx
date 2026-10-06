@@ -35,7 +35,7 @@ export default async function TeamPage({ params, searchParams }: Props) {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/teams">
-            ← Teams
+            <span aria-hidden="true">←</span> Teams
           </Link>
           <h1>{team.name}</h1>
         </div>
@@ -63,7 +63,7 @@ export default async function TeamPage({ params, searchParams }: Props) {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Email</th>
+                  <th className="hidden md:table-cell">Email</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -71,10 +71,10 @@ export default async function TeamPage({ params, searchParams }: Props) {
                 {team.executives.map((exec) => (
                   <tr key={exec.id}>
                     <td>
-                      <Link href={`/admin/executives/${exec.id}`}>{exec.name}</Link>
-                      <div className="muted">@{exec.username}</div>
+                      <Link className="person-name" href={`/admin/executives/${exec.id}`}>{exec.name}</Link>
+                      <div className="muted person-sub">@{exec.username}</div>
                     </td>
-                    <td>{exec.email}</td>
+                    <td className="hidden md:table-cell">{exec.email}</td>
                     <td>
                       <StatusBadge active={exec.isActive} />
                     </td>
@@ -123,7 +123,7 @@ export default async function TeamPage({ params, searchParams }: Props) {
               action={setTeamStatusAction.bind(null, team.id, !team.isActive)}
               label={team.isActive ? "Deactivate team" : "Activate team"}
               pendingLabel="Updating…"
-              variant={team.isActive ? "danger" : "solid"}
+              variant={team.isActive ? "line" : "solid"}
               confirm={team.isActive ? `Deactivate ${team.name}?` : undefined}
             />
           </section>

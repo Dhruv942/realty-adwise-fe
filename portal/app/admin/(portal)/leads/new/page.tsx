@@ -11,7 +11,7 @@ export default function NewLeadPage() {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/leads">
-            ← Leads
+            <span aria-hidden="true">←</span> Leads
           </Link>
           <h1>Add lead</h1>
         </div>

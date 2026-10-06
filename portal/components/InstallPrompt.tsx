@@ -72,29 +72,29 @@ export function InstallPrompt() {
     <div
       role="dialog"
       aria-label="Install the app"
-      className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-border bg-card p-3.5 shadow-xl sm:hidden"
+      className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 rounded-xl border border-border bg-surface-elevated p-3.5 shadow-lg sm:hidden"
     >
       <div className="flex items-start gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-foreground font-display text-sm tracking-wider text-white">RA</span>
+        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary font-display text-xs font-bold text-primary-foreground">RA</span>
         <div className="min-w-0 flex-1">
-          <p className="text-[15px]">Install Realty Adwise</p>
-          <p className="text-sm text-muted-foreground">Open it from your home screen, like an app.</p>
+          <p className="text-sm font-medium">Install Realty Adwise</p>
+          <p className="text-[13px] text-muted-foreground">Open it from your home screen, like an app.</p>
         </div>
-        <button type="button" onClick={dismiss} aria-label="Not now" className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
+        <button type="button" onClick={dismiss} aria-label="Not now" className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
           <X className="size-4" />
         </button>
       </div>
 
       {event && (
-        <button type="button" onClick={install} className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-foreground font-display text-xs uppercase tracking-[.2em] text-white">
-          <Download className="size-4" /> Download app
+        <button type="button" onClick={install} className="btn btn-solid mt-3 min-h-11 w-full">
+          <Download aria-hidden="true" /> Download app
         </button>
       )}
 
       {!event && ios && (
         <>
-          <button type="button" onClick={() => setSteps((s) => !s)} className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-foreground font-display text-xs uppercase tracking-[.2em] text-white">
-            <Download className="size-4" /> Download app
+          <button type="button" onClick={() => setSteps((s) => !s)} className="btn btn-solid mt-3 min-h-11 w-full">
+            <Download aria-hidden="true" /> Download app
           </button>
           {steps && (
             <ol className="mt-3 grid gap-1.5 text-sm text-muted-foreground">

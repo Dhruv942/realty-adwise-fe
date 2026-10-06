@@ -33,7 +33,7 @@ export default async function CustomerPage({ params }: Props) {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/customers">
-            ← Clients
+            <span aria-hidden="true">←</span> Clients
           </Link>
           <h1>{c.name}</h1>
           <p className="muted">

@@ -18,7 +18,6 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Properties</h1>
         </div>
         <Link className="btn btn-line" href="/admin/properties?assigned=false">
@@ -68,11 +67,13 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
           <thead>
             <tr>
               <th>Name</th>
-              <th>Location</th>
+              <th className="hidden md:table-cell">Location</th>
               <th>Executives</th>
               <th>Pending leads</th>
-              <th>Status</th>
-              <th className="col-actions">Actions</th>
+              <th className="hidden sm:table-cell">Status</th>
+              <th className="col-actions">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -84,12 +85,12 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                   </Link>
                   {p.isStub && <div className="muted person-sub">Created from a lead, details not filled in</div>}
                 </td>
-                <td>{p.location ?? <span className="muted">—</span>}</td>
+                <td className="hidden md:table-cell">{p.location ?? <span className="muted">—</span>}</td>
                 <td>
                   {p.needsAssignment ? <span className="badge badge-warn">Needs executives</span> : p.assignedExecutiveCount}
                 </td>
-                <td>{p.pendingLeadCount > 0 ? <strong>{p.pendingLeadCount}</strong> : <span className="muted">0</span>}</td>
-                <td>
+                <td className="num">{p.pendingLeadCount > 0 ? <strong>{p.pendingLeadCount}</strong> : <span className="muted">0</span>}</td>
+                <td className="hidden sm:table-cell">
                   <StatusBadge active={p.isActive} />
                 </td>
                 <td className="col-actions">
@@ -102,7 +103,17 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {properties.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty">
-                  {filtered ? "No properties match these filters." : "No properties yet. They appear when the first lead is added."}
+                  {filtered ? (
+                    <>
+                      <strong>No properties match these filters</strong>
+                      <Link href="/admin/properties">Clear the filters</Link> to see every property.
+                    </>
+                  ) : (
+                    <>
+                      <strong>No properties yet</strong>
+                      Properties are created automatically when the first lead for them arrives.
+                    </>
+                  )}
                 </td>
               </tr>
             )}

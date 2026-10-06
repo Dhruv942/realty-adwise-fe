@@ -13,12 +13,12 @@ export function AssignmentRuleForm({ action, setting }: { action: (prev: FormSta
       <fieldset className="grid gap-2 border-0 p-0">
         <legend className="sr-only">Assignment rule</legend>
         {setting.availableRules.map((r) => (
-          <label key={r.value} className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4 has-[:checked]:border-foreground has-[:checked]:bg-muted/60">
-            <input type="radio" name="rule" value={r.value} defaultChecked={r.value === setting.rule} className="mt-1 size-5 accent-[#1b1b1c]" />
+          <label key={r.value} className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:bg-muted/40 has-[:checked]:border-foreground has-[:checked]:bg-muted/50">
+            <input type="radio" name="rule" value={r.value} defaultChecked={r.value === setting.rule} className="mt-0.5 size-[18px] accent-primary" />
             <span className="min-w-0">
               <span className="flex flex-wrap items-center gap-2">
-                <span>{r.label}</span>
-                {r.value === setting.defaultRule && <span className="badge badge-info">Default</span>}
+                <span className="font-medium">{r.label}</span>
+                {r.value === setting.defaultRule && <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">Default</span>}
               </span>
               <span className="mt-1 block text-sm text-muted-foreground">{r.description}</span>
             </span>

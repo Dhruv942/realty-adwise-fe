@@ -28,7 +28,6 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Admin</p>
           <h1>Leads</h1>
         </div>
         <Link className="btn btn-solid" href="/admin/leads/new">

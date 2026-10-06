@@ -35,7 +35,7 @@ export default async function ManagerPage({ params, searchParams }: Props) {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/managers">
-            ← Managers
+            <span aria-hidden="true">←</span> Managers
           </Link>
           <h1>{manager.name}</h1>
           <p className="muted">@{manager.username}</p>

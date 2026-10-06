@@ -24,7 +24,6 @@ export default async function ManagerLeadsPage({ searchParams }: { searchParams:
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Manager</p>
           <h1>Leads</h1>
         </div>
       </div>

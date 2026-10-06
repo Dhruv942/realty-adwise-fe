@@ -17,7 +17,7 @@ export default async function NewExecutivePage({ searchParams }: { searchParams:
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/executives">
-            ← Executives
+            <span aria-hidden="true">←</span> Executives
           </Link>
           <h1>New executive</h1>
         </div>

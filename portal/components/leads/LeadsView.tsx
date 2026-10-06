@@ -99,7 +99,7 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
           </select>
         </div>
         <button className="btn btn-line" type="submit">
-          Filter
+          Apply
         </button>
         {filtered && (
           <Link className="btn btn-line" href={base}>
@@ -108,17 +108,35 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
         )}
       </form>
 
-      <p className="hint -mb-2 sm:hidden">Tip: press and hold a lead to mark it important.</p>
-
-      <div className="grid gap-3 xl:grid-cols-2">
-        {leads.map((l) => (
-          <LeadCard key={l.id} lead={l} role={role} href={`${detailBase}/${l.id}`} showExecutive={showExecutive} />
-        ))}
-      </div>
-      {leads.length === 0 && <p className="empty panel">{filtered ? "No leads match these filters." : "No leads yet."}</p>}
+      {leads.length === 0 ? (
+        <div className="empty rounded-xl border border-dashed border-border-strong">
+          {filtered ? (
+            <>
+              <strong>No leads match these filters</strong>
+              Try a different search or status, or <Link href={base}>clear the filters</Link>.
+            </>
+          ) : (
+            <>
+              <strong>No leads yet</strong>
+              New enquiries appear here as soon as they arrive.
+            </>
+          )}
+        </div>
+      ) : (
+        <section aria-label="Leads">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+            {leads.map((l) => (
+              <li key={l.id}>
+                <LeadCard lead={l} role={role} href={`${detailBase}/${l.id}`} showExecutive={showExecutive} />
+              </li>
+            ))}
+          </ul>
+          <p className="hint mt-2 sm:hidden">Tip: press and hold a lead to mark it important.</p>
+        </section>
+      )}
 
       {(query.page > 1 || hasNext) && (
-        <div className="pager">
+        <nav className="pager" aria-label="Pagination">
           {query.page > 1 ? (
             <Link className="btn btn-line btn-sm" href={href(query.page - 1)}>
               ← Newer
@@ -134,7 +152,7 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
           ) : (
             <span />
           )}
-        </div>
+        </nav>
       )}
     </>
   );

@@ -1,5 +1,5 @@
-import { Loading } from "@/components/Loading";
+import { DashboardSkeleton } from "@/components/Skeletons";
 
-export default function ManagerLoading() {
-  return <Loading />;
+export default function Loading() {
+  return <DashboardSkeleton />;
 }

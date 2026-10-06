@@ -11,7 +11,7 @@ export default function NewManagerPage() {
       <div className="page-head">
         <div>
           <Link className="back" href="/admin/managers">
-            ← Managers
+            <span aria-hidden="true">←</span> Managers
           </Link>
           <h1>New manager</h1>
         </div>

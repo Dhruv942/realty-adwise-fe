@@ -31,21 +31,33 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
       <div className="page-head">
         <div className="min-w-0">
           <Link className="back" href={backHref}>
-            ← {backLabel}
+            <span aria-hidden="true">←</span> {backLabel}
           </Link>
           <h1 className="truncate">{lead.customer.name}</h1>
-          <p className="muted">
+          <p className="muted mt-1">
             #{lead.leadNo} · {lead.requestedPropertyName}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ImportantButton role={role} id={lead.id} initial={lead.isImportant} />
           <LeadStatusBadge status={lead.status} />
         </div>
       </div>
 
+      {/* Contact actions: inline on tablet and up, a fixed bar above the bottom navigation on phones */}
+      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface p-2.5 sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 sm:mx-0 sm:flex">
+          <a href={`tel:${phone}`} className="btn btn-solid min-h-11 no-underline sm:min-h-10">
+            <Phone aria-hidden="true" /> Call<span className="hidden sm:inline"> {phone}</span>
+          </a>
+          <a href={whatsappUrl(phone)} target="_blank" rel="noopener noreferrer" className="btn btn-line min-h-11 no-underline sm:min-h-10" aria-label={`WhatsApp ${lead.customer.name} (opens in a new tab)`}>
+            <MessageCircle aria-hidden="true" /> WhatsApp
+          </a>
+        </div>
+      </div>
+
       {role === "EXECUTIVE" && slaDeadline(lead.status, lead.assignedAt) && (
-        <p className="notice notice-error" role="status">
+        <p className="notice notice-warn" role="status">
           Update the status by {slaDeadline(lead.status, lead.assignedAt)}, or this lead moves to the next executive. Opening it isn&apos;t enough.
         </p>
       )}
@@ -56,7 +68,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         </p>
       )}
       {pending && (
-        <p className="notice notice-error" role="status">
+        <p className="notice notice-warn" role="status">
           No executive is assigned to {lead.property.name} yet.
           {assign ? " Choose one under “Assigned to”." : " An admin or manager needs to assign it."}
           {propertyHref && (
@@ -138,17 +150,6 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         </div>
       </div>
 
-      {/* Sticky contact bar, sits above the bottom navigation on phones */}
-      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-card/95 p-2.5 backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 sm:max-w-md">
-          <a href={`tel:${phone}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-foreground font-display text-xs uppercase tracking-[.18em] no-underline hover:bg-foreground hover:text-white">
-            <Phone className="size-4" /> Call
-          </a>
-          <a href={whatsappUrl(phone)} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#128c4a] font-display text-xs uppercase tracking-[.18em] text-white no-underline hover:bg-[#0e7a3f]">
-            <MessageCircle className="size-4" /> WhatsApp
-          </a>
-        </div>
-      </div>
     </>
   );
 }
