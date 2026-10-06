@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LeadHistory } from "@/components/LeadHistory";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { LeadStatusForm } from "@/components/LeadForms";
-import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
+import { formatBudget, formatDate, slaDeadline, whatsappUrl } from "@/lib/format";
 import type { FormState, LeadDetail, Role } from "@/lib/types";
 import { AssignForm } from "./AssignForm";
 import { ImportantButton } from "./ImportantButton";
@@ -43,6 +43,12 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
           <LeadStatusBadge status={lead.status} />
         </div>
       </div>
+
+      {role === "EXECUTIVE" && slaDeadline(lead.status, lead.assignedAt) && (
+        <p className="notice notice-error" role="status">
+          Update the status by {slaDeadline(lead.status, lead.assignedAt)}, or this lead moves to the next executive. Opening it isn&apos;t enough.
+        </p>
+      )}
 
       {created && !pending && (
         <p className="notice notice-success" role="status">

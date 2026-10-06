@@ -5,7 +5,7 @@ import { ActionForm } from "@/components/ActionForm";
 import { AssignExecutivesForm, EditPropertyForm } from "@/components/PropertyForms";
 import { StatusBadge } from "@/components/StatusBadge";
 import { setExecutivesAction, setPropertyStatusAction, updatePropertyAction } from "@/lib/actions/properties";
-import { getProperty, listExecutives } from "@/lib/admin";
+import { getProperty, listAssignmentHistory, listExecutives } from "@/lib/admin";
 import { ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
@@ -27,7 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PropertyPage({ params }: Props) {
   const { id } = await params;
-  const [property, executives] = await Promise.all([loadProperty(id), listExecutives({ isActive: "true" })]);
+  const [property, executives, history] = await Promise.all([
+    loadProperty(id),
+    listExecutives({ isActive: "true" }),
+    listAssignmentHistory(id, { limit: "10" }).catch(() => []),
+  ]);
   const choices = executives.map((e) => ({ id: e.id, name: e.name, username: e.username, teamName: e.team?.name ?? null }));
 
   return (
@@ -62,6 +66,7 @@ export default async function PropertyPage({ params }: Props) {
         <div className="side">
           <section className="panel">
             <h2>Executives</h2>
+            <p className="muted text-sm">Leads are shared among these executives in rotation, by the order their accounts were created. Inactive executives are skipped.</p>
             <AssignExecutivesForm
               action={setExecutivesAction.bind(null, property.id)}
               choices={choices}
@@ -93,6 +98,28 @@ export default async function PropertyPage({ params }: Props) {
               <dt>Updated</dt>
               <dd>{formatDate(property.updatedAt)}</dd>
             </dl>
+          </section>
+
+          <section className="panel">
+            <h2>Recent assignments</h2>
+            {history.length === 0 ? (
+              <p className="muted">No leads assigned yet.</p>
+            ) : (
+              <ul className="history">
+                {history.map((h) => (
+                  <li key={h.id}>
+                    <div className="history-head">
+                      <Link href={`/admin/leads/${h.leadId}`}>{h.executive.name}</Link>
+                      <span className={`badge ${h.method === "ROUND_ROBIN" ? "badge-info" : "badge-warn"}`}>{h.method === "MANUAL" ? "Manual" : h.method === "TIMEOUT" ? "Timed out" : "Rotation"}</span>
+                    </div>
+                    <div className="muted person-sub">
+                      {formatDate(h.createdAt)}
+                      {h.assignedBy ? ` · by ${h.assignedBy.name}` : ""}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           <section className="panel">

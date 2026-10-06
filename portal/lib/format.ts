@@ -23,3 +23,15 @@ export function statusLabel(status: string): string {
 export function whatsappUrl(mobile: string): string {
   return `https://wa.me/${mobile.replace(/\D/g, "")}`;
 }
+
+/** Default SLA. Admins can change it, but only they can read the setting, so the app uses the default for reminders. */
+export const SLA_MINUTES = 90;
+
+const clock = new Intl.DateTimeFormat("en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" });
+
+/** "Update status by 3:45 pm" while a lead is still INCOMING. */
+export function slaDeadline(status: string, assignedAt: string | null): string | null {
+  if (status !== "INCOMING" || !assignedAt) return null;
+  const t = new Date(assignedAt).getTime() + SLA_MINUTES * 60_000;
+  return Number.isNaN(t) ? null : clock.format(new Date(t));
+}

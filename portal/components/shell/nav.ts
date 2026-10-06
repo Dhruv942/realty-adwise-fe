@@ -1,4 +1,4 @@
-import { Building2, ContactRound, LayoutDashboard, ListChecks, UserCog, UserRound, UsersRound, Users, type LucideIcon } from "lucide-react";
+import { Building2, ContactRound, LayoutDashboard, ListChecks, Settings, UserCog, UserRound, UsersRound, Users, type LucideIcon } from "lucide-react";
 import type { Role } from "@/lib/types";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon; /** Shown in the mobile bottom bar. */ primary?: boolean; exact?: boolean };
@@ -14,6 +14,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { href: "/admin/managers", label: "Managers", icon: UserCog },
     { href: "/admin/executives", label: "Executives", icon: UserRound },
     { href: "/admin/teams", label: "Teams", icon: UsersRound },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
   ],
   MANAGER: [
     { href: "/manager", label: "Overview", icon: LayoutDashboard, primary: true, exact: true },

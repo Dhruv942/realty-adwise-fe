@@ -130,3 +130,31 @@ export type Customer = {
 export type CustomerDetail = Customer & { leads: Omit<Lead, "customer">[] };
 
 export type LeadSummary = { newLeads: number; totalLeads: number; byStatus: Partial<Record<LeadStatus, number>> };
+
+export type AssignmentRuleSetting = {
+  rule: string;
+  defaultRule: string;
+  isDefault: boolean;
+  availableRules: { value: string; label: string; description: string }[];
+  updatedAt: string | null;
+  updatedBy: { id: string; name: string } | null;
+};
+
+export type AssignmentHistoryEntry = {
+  id: string;
+  leadId: string;
+  executive: { id: string; name: string; username: string };
+  method: "ROUND_ROBIN" | "MANUAL" | "TIMEOUT";
+  assignedBy: { id: string; name: string } | null;
+  createdAt: string;
+};
+
+export type LeadTimeoutSetting = {
+  minutes: number;
+  defaultMinutes: number;
+  isDefault: boolean;
+  minMinutes: number;
+  maxMinutes: number;
+  updatedAt: string | null;
+  updatedBy: { id: string; name: string } | null;
+};

@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { authedRequest } from "./api";
-import type { Customer, Manager, ManagerDetail, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail, Team, TeamDetail } from "./types";
+import type { AssignmentHistoryEntry, AssignmentRuleSetting, Customer, LeadTimeoutSetting, Manager, ManagerDetail, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail, Team, TeamDetail } from "./types";
 
 const a = <T>(path: string, options?: Parameters<typeof authedRequest>[2]) => authedRequest<T>("ADMIN", path, options);
 const enc = encodeURIComponent;
@@ -156,3 +156,21 @@ export const deleteManager = (id: string) => a<unknown>(`/admin/managers/${enc(i
 
 export const assignLeadAsAdmin = (id: string, executiveId: string) =>
   a<Lead>(`/admin/leads/${enc(id)}/assign`, { method: "PATCH", body: { executiveId } });
+
+// ---- Settings ----
+
+export const getAssignmentRule = () => a<AssignmentRuleSetting>("/admin/settings/assignment-rule");
+
+export const setAssignmentRule = (rule: string) =>
+  a<AssignmentRuleSetting>("/admin/settings/assignment-rule", { method: "PUT", body: { rule } });
+
+export const getLeadTimeout = () => a<LeadTimeoutSetting>("/admin/settings/lead-timeout");
+
+export const setLeadTimeout = (minutes: number) =>
+  a<LeadTimeoutSetting>("/admin/settings/lead-timeout", { method: "PUT", body: { minutes } });
+
+/** The API wraps the rows as `{ property, limit, offset, history }`. */
+export async function listAssignmentHistory(propertyId: string, filters: { limit?: string; offset?: string } = {}) {
+  const res = await a<{ history: AssignmentHistoryEntry[] } | AssignmentHistoryEntry[]>(`/admin/properties/${enc(propertyId)}/assignment-history`, { query: filters });
+  return Array.isArray(res) ? res : (res.history ?? []);
+}

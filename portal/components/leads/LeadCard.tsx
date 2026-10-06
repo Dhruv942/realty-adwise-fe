@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { setImportantAction } from "@/lib/actions/leads";
-import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
+import { formatBudget, formatDate, slaDeadline, whatsappUrl } from "@/lib/format";
 import type { Lead, Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +65,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
     if (Math.hypot(event.clientX - origin.current.x, event.clientY - origin.current.y) > MOVE_TOLERANCE) cancel();
   }
 
+  const deadline = role === "EXECUTIVE" ? slaDeadline(lead.status, lead.assignedAt) : null;
   const meta = [lead.requirement, lead.budget != null ? formatBudget(lead.budget) : null].filter(Boolean).join(" · ");
 
   return (
@@ -105,6 +106,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
           {lead.property.location ? `, ${lead.property.location}` : ""}
         </p>
         {meta && <p className="mt-1 text-sm">{meta}</p>}
+        {deadline && <p className="mt-2 text-xs text-warning">Update the status by {deadline} or it moves to the next executive.</p>}
         <p className="mt-2 text-xs text-muted-foreground">
           {lead.source}
           {showExecutive && <> · {lead.assignedExecutive ? lead.assignedExecutive.name : "Unassigned"}</>}
