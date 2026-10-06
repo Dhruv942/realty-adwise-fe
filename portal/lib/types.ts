@@ -1,19 +1,30 @@
-export type Role = "ADMIN" | "EXECUTIVE";
+/** Portal area. The backend calls executives `SALES`; the session stores them as EXECUTIVE. */
+export type Role = "ADMIN" | "MANAGER" | "EXECUTIVE";
+
+export type Designation = "MANAGER" | "SALES_EXECUTIVE" | "EXECUTIVE_MANAGER";
+export const DESIGNATION_LABEL: Record<Designation, string> = {
+  MANAGER: "Manager",
+  SALES_EXECUTIVE: "Sales Executive",
+  EXECUTIVE_MANAGER: "Executive Manager",
+};
 
 export type SessionUser = {
   id: string;
   name: string;
   email: string;
   role: Role;
+  designation?: Designation;
 };
 
 export type TeamRef = { id: string; name: string; isActive: boolean };
+export type ManagerRef = { id: string; name: string };
 
 export type Team = {
   id: string;
   name: string;
   description: string | null;
   isActive: boolean;
+  manager?: ManagerRef | null;
   executiveCount: number;
   createdAt: string;
   updatedAt: string;
@@ -25,7 +36,8 @@ export type Executive = {
   email: string;
   phone: string | null;
   username: string;
-  role: "EXECUTIVE";
+  role: "SALES" | "EXECUTIVE";
+  designation?: Designation;
   isActive: boolean;
   team: TeamRef | null;
   createdAt: string;
@@ -34,7 +46,11 @@ export type Executive = {
 
 export type TeamDetail = Team & { executives: Executive[] };
 
-export type LoginResponse = { accessToken: string; user: SessionUser };
+export type Manager = Omit<Executive, "role" | "team"> & { role: "MANAGER"; team: TeamRef | null };
+export type ManagerDetail = Manager & { managedTeams: Team[] };
+
+/** Raw login payload: executives come back with role `SALES`. */
+export type LoginResponse = { accessToken: string; user: Omit<SessionUser, "role"> & { role: Role | "SALES" } };
 
 export type FieldErrors = Record<string, string>;
 
@@ -84,6 +100,7 @@ export type Lead = {
   assignedExecutive: { id: string; name: string } | null;
   leadNo: number;
   requirement: string | null;
+  isImportant: boolean;
   isNew: boolean;
   assignedAt: string | null;
   createdAt: string;

@@ -19,3 +19,7 @@ export function formatBudget(n: number | null | undefined): string {
 export function statusLabel(status: string): string {
   return status.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
 }
+
+export function whatsappUrl(mobile: string): string {
+  return `https://wa.me/${mobile.replace(/\D/g, "")}`;
+}

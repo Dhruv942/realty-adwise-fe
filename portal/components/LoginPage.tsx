@@ -9,6 +9,12 @@ const copy: Record<Role, { eyebrow: string; title: string; lede: string; other: 
     eyebrow: "Admin",
     title: "Manage your teams",
     lede: "Create teams, onboard executives and control who has access.",
+    other: { href: "/manager/login", label: "Manager? Sign in here" },
+  },
+  MANAGER: {
+    eyebrow: "Manager",
+    title: "Lead your team",
+    lede: "See your team's leads, highlight the important ones and assign them to executives.",
     other: { href: "/executive/login", label: "Executive? Sign in here" },
   },
   EXECUTIVE: {

@@ -5,7 +5,7 @@ import type { Lead, LeadDetail, LeadSummary } from "./types";
 
 const e = <T>(path: string, options?: Parameters<typeof authedRequest>[2]) => authedRequest<T>("EXECUTIVE", path, options);
 
-export type MyLeadFilters = { status?: string; search?: string; limit?: string; offset?: string; isNew?: string };
+export type MyLeadFilters = { status?: string; search?: string; limit?: string; offset?: string; isNew?: string; important?: string };
 
 export const listMyLeads = (filters: MyLeadFilters = {}) => e<Lead[]>("/executive/leads", { query: filters });
 

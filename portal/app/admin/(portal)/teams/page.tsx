@@ -3,7 +3,7 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TeamForm } from "@/components/TeamForm";
 import { createTeamAction } from "@/lib/actions/teams";
-import { listTeams } from "@/lib/admin";
+import { listManagers, listTeams } from "@/lib/admin";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Teams" };
@@ -13,7 +13,7 @@ type SearchParams = Promise<{ search?: string; isActive?: string }>;
 export default async function TeamsPage({ searchParams }: { searchParams: SearchParams }) {
   const { search = "", isActive = "" } = await searchParams;
   const status = isActive === "true" || isActive === "false" ? isActive : "";
-  const teams = await listTeams({ search: search.trim() || undefined, isActive: status || undefined });
+  const [teams, managers] = await Promise.all([listTeams({ search: search.trim() || undefined, isActive: status || undefined }), listManagers()]);
   const filtered = Boolean(search || status);
 
   return (
@@ -55,6 +55,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
               <thead>
                 <tr>
                   <th>Team</th>
+                  <th>Manager</th>
                   <th>Executives</th>
                   <th>Status</th>
                   <th>Created</th>
@@ -67,6 +68,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
                       <Link href={`/admin/teams/${team.id}`}>{team.name}</Link>
                       {team.description && <div className="muted">{team.description}</div>}
                     </td>
+                    <td>{team.manager?.name ?? <span className="muted">None</span>}</td>
                     <td>{team.executiveCount}</td>
                     <td>
                       <StatusBadge active={team.isActive} />
@@ -76,7 +78,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
                 ))}
                 {teams.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="empty">
+                    <td colSpan={5} className="empty">
                       {filtered ? "No teams match these filters." : "No teams yet. Create the first one."}
                     </td>
                   </tr>
@@ -88,7 +90,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Search
 
         <section className="panel" id="new" aria-labelledby="new-team">
           <h2 id="new-team">New team</h2>
-          <TeamForm action={createTeamAction} submitLabel="Create team" />
+          <TeamForm action={createTeamAction} managers={managers} submitLabel="Create team" />
         </section>
       </div>
     </>

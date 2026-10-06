@@ -5,7 +5,7 @@ import { ActionForm } from "@/components/ActionForm";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TeamForm } from "@/components/TeamForm";
 import { setTeamStatusAction, updateTeamAction } from "@/lib/actions/teams";
-import { getTeam } from "@/lib/admin";
+import { getTeam, listManagers } from "@/lib/admin";
 import { ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TeamPage({ params, searchParams }: Props) {
   const [{ id }, { created }] = await Promise.all([params, searchParams]);
-  const team = await loadTeam(id);
+  const [team, managers] = await Promise.all([loadTeam(id), listManagers()]);
 
   return (
     <>
@@ -96,6 +96,8 @@ export default async function TeamPage({ params, searchParams }: Props) {
           <section className="panel">
             <h2>Details</h2>
             <dl className="meta">
+              <dt>Manager</dt>
+              <dd>{team.manager ? <Link href={`/admin/managers/${team.manager.id}`}>{team.manager.name}</Link> : "None"}</dd>
               <dt>Active executives</dt>
               <dd>{team.executiveCount}</dd>
               <dt>Created</dt>
@@ -107,7 +109,7 @@ export default async function TeamPage({ params, searchParams }: Props) {
 
           <section className="panel">
             <h2>Edit team</h2>
-            <TeamForm action={updateTeamAction.bind(null, team.id)} team={team} submitLabel="Save changes" />
+            <TeamForm action={updateTeamAction.bind(null, team.id)} team={team} managers={managers} submitLabel="Save changes" />
           </section>
 
           <section className="panel">

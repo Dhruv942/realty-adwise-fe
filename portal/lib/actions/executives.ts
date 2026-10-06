@@ -17,6 +17,8 @@ import { echo, str, strOrNull, toFormState } from "@/lib/forms";
 import type { Executive, FormState } from "@/lib/types";
 
 const PROFILE_FIELDS = ["name", "email", "username", "phone"] as const;
+const DESIGNATIONS = ["SALES_EXECUTIVE", "EXECUTIVE_MANAGER"];
+const designationOf = (formData: FormData) => (DESIGNATIONS.includes(str(formData, "designation")) ? str(formData, "designation") : undefined);
 
 function password(formData: FormData, key = "password"): string {
   const value = formData.get(key);
@@ -24,7 +26,7 @@ function password(formData: FormData, key = "password"): string {
 }
 
 export async function createExecutiveAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const values = echo(formData, [...PROFILE_FIELDS, "teamId"]);
+  const values = echo(formData, [...PROFILE_FIELDS, "teamId", "designation"]);
   let executive: Executive;
   try {
     executive = await createExecutive({
@@ -34,6 +36,7 @@ export async function createExecutiveAction(_prev: FormState, formData: FormData
       password: password(formData),
       phone: values.phone || null,
       teamId: values.teamId || null,
+      designation: designationOf(formData),
     });
   } catch (error) {
     return toFormState(error, values);
@@ -43,7 +46,7 @@ export async function createExecutiveAction(_prev: FormState, formData: FormData
 }
 
 export async function updateExecutiveAction(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  const values = echo(formData, [...PROFILE_FIELDS]);
+  const values = echo(formData, [...PROFILE_FIELDS, "designation"]);
   try {
     const current = await getExecutive(id);
     const next: Required<ExecutiveChanges> = {
@@ -51,10 +54,11 @@ export async function updateExecutiveAction(id: string, _prev: FormState, formDa
       email: values.email.toLowerCase(),
       username: values.username.toLowerCase(),
       phone: strOrNull(formData, "phone"),
+      designation: (designationOf(formData) ?? current.designation ?? "SALES_EXECUTIVE") as Required<ExecutiveChanges>["designation"],
     };
     // The API needs at least one field and checks uniqueness, so only send what changed.
     const changes = Object.fromEntries(
-      PROFILE_FIELDS.filter((key) => next[key] !== (current[key] ?? null)).map((key) => [key, next[key]]),
+      ([...PROFILE_FIELDS, "designation"] as const).filter((key) => next[key] !== (current[key] ?? null)).map((key) => [key, next[key]]),
     ) as ExecutiveChanges;
     if (Object.keys(changes).length === 0) return { status: "idle" };
 

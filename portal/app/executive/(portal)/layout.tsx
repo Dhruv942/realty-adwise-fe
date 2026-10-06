@@ -1,12 +1,11 @@
 import { PortalShell } from "@/components/PortalShell";
 import { requireSession } from "@/lib/session";
 
-const nav = [{ href: "/executive", label: "My leads" }];
 
 export default async function ExecutiveLayout({ children }: { children: React.ReactNode }) {
   const { user } = await requireSession("EXECUTIVE");
   return (
-    <PortalShell user={user} nav={nav}>
+    <PortalShell user={user}>
       {children}
     </PortalShell>
   );

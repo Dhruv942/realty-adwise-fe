@@ -4,7 +4,8 @@ import { SESSION_COOKIE, loginPath } from "@/lib/session-cookie";
 // Server Components can't modify cookies, so an expired/revoked token found during
 // rendering is sent here to clear the cookie before returning to the login screen.
 export function GET(request: NextRequest) {
-  const role = request.nextUrl.searchParams.get("role") === "EXECUTIVE" ? "EXECUTIVE" : "ADMIN";
+  const param = request.nextUrl.searchParams.get("role");
+  const role = param === "EXECUTIVE" || param === "MANAGER" ? param : "ADMIN";
   const url = new URL(loginPath[role], request.url);
   if (request.nextUrl.searchParams.get("reason") === "expired") url.searchParams.set("expired", "1");
   const response = NextResponse.redirect(url);

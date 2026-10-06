@@ -6,7 +6,7 @@ import type { Role } from "@/lib/types";
 // enforces roles on every call, so this only decides where to send the browser.
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const role: Role = pathname.startsWith("/executive") ? "EXECUTIVE" : "ADMIN";
+  const role: Role = pathname.startsWith("/executive") ? "EXECUTIVE" : pathname.startsWith("/manager") ? "MANAGER" : "ADMIN";
   const session = parseSession(request.cookies.get(SESSION_COOKIE)?.value);
   const onLogin = pathname === loginPath[role];
 
@@ -26,5 +26,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*", "/executive", "/executive/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/manager", "/manager/:path*", "/executive", "/executive/:path*"],
 };

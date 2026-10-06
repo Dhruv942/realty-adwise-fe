@@ -12,11 +12,13 @@ export type Session = {
 
 export const loginPath: Record<Role, string> = {
   ADMIN: "/admin/login",
+  MANAGER: "/manager/login",
   EXECUTIVE: "/executive/login",
 };
 
 export const homePath: Record<Role, string> = {
   ADMIN: "/admin",
+  MANAGER: "/manager",
   EXECUTIVE: "/executive",
 };
 

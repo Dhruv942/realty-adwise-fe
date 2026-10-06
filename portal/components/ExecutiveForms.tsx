@@ -11,7 +11,7 @@ type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 const USERNAME_PATTERN = "[A-Za-z0-9._\\-]{3,50}";
 const PHONE_PATTERN = "\\+?[0-9]{7,15}";
 
-function ProfileFields({ state, executive }: { state: FormState; executive?: Executive }) {
+export function ProfileFields({ state, executive, showDesignation = true }: { state: FormState; executive?: Pick<Executive, "name" | "email" | "username" | "phone"> & { designation?: Executive["designation"] }; showDesignation?: boolean }) {
   const v = state.values;
   const err = state.fieldErrors;
   return (
@@ -40,6 +40,16 @@ function ProfileFields({ state, executive }: { state: FormState; executive?: Exe
         error={err?.phone}
         hint="7 to 15 digits, optional leading +."
       />
+      {showDesignation && (
+      <div className={`field${err?.designation ? " has-error" : ""}`}>
+        <label htmlFor="f-designation">Designation</label>
+        <select id="f-designation" name="designation" defaultValue={v?.designation ?? executive?.designation ?? "SALES_EXECUTIVE"}>
+          <option value="SALES_EXECUTIVE">Sales Executive</option>
+          <option value="EXECUTIVE_MANAGER">Executive Manager</option>
+        </select>
+        <p className="field-hint">A label only. Both have the same access.</p>
+      </div>
+      )}
     </div>
   );
 }

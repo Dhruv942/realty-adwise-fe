@@ -9,10 +9,13 @@ export default async function Home() {
   if (session) redirect(homePath[session.user.role]);
 
   return (
-    <AuthLayout eyebrow="Team portal" title="Sign in to continue" lede="Admins manage teams and executives. Executives work their leads.">
+    <AuthLayout eyebrow="Team portal" title="Sign in to continue" lede="Admins manage everything. Managers assign leads to their team. Executives work their leads.">
       <div className="stack">
         <Link className="btn btn-solid" href="/admin/login">
           Admin sign in
+        </Link>
+        <Link className="btn btn-line" href="/manager/login">
+          Manager sign in
         </Link>
         <Link className="btn btn-line" href="/executive/login">
           Executive sign in

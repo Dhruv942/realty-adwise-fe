@@ -9,6 +9,7 @@ import type { FormState, LoginResponse, Role } from "@/lib/types";
 
 const loginEndpoint: Record<Role, string> = {
   ADMIN: "/auth/admin/login",
+  MANAGER: "/auth/manager/login",
   EXECUTIVE: "/auth/executive/login",
 };
 
@@ -28,11 +29,12 @@ export async function login(role: Role, _prev: FormState, formData: FormData): P
   }
 
   // The endpoints are role-specific, but don't trust that blindly when routing.
-  if (result.user.role !== role) {
+  const actual: Role = result.user.role === "SALES" ? "EXECUTIVE" : result.user.role;
+  if (actual !== role) {
     return { status: "error", message: "Invalid email or password", values };
   }
 
-  await setSession(result.accessToken, result.user);
+  await setSession(result.accessToken, { ...result.user, role: actual });
   redirect(safeNext(str(formData, "next"), role));
 }
 
