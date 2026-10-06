@@ -10,7 +10,7 @@ export function ErrorView({ error, reset }: { error: Error & { digest?: string }
     <div className="panel" role="alert">
       <h2>Something went wrong</h2>
       <p className="muted">
-        We couldn&apos;t load this page. The server may still be waking up, or it returned an error.
+        We couldn&apos;t load this page. The server may be unreachable, or it returned an error.
         {error.digest && <> Reference: {error.digest}</>}
       </p>
       <div>

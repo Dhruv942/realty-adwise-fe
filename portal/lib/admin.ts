@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { authedRequest } from "./api";
-import type { Executive, Team, TeamDetail } from "./types";
+import type { Customer, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail, Team, TeamDetail } from "./types";
 
 const a = <T>(path: string, options?: Parameters<typeof authedRequest>[2]) => authedRequest<T>("ADMIN", path, options);
 const enc = encodeURIComponent;
@@ -62,3 +62,67 @@ export const removeExecutiveTeam = (id: string) =>
   a<Executive>(`/admin/executives/${enc(id)}/team`, { method: "DELETE" });
 
 export const deleteExecutive = (id: string) => a<unknown>(`/admin/executives/${enc(id)}`, { method: "DELETE" });
+
+// ---- Properties ----
+
+export type PropertyFilters = { assigned?: string; isActive?: string; search?: string };
+export type PropertyChanges = { name?: string; description?: string | null; location?: string | null };
+
+export const listProperties = (filters: PropertyFilters = {}) => a<Property[]>("/admin/properties", { query: filters });
+
+export const getProperty = cache((id: string) => a<PropertyDetail>(`/admin/properties/${enc(id)}`));
+
+export const updateProperty = (id: string, body: PropertyChanges) =>
+  a<Property>(`/admin/properties/${enc(id)}`, { method: "PATCH", body });
+
+export const setPropertyStatus = (id: string, isActive: boolean) =>
+  a<Property>(`/admin/properties/${enc(id)}/status`, { method: "PATCH", body: { isActive } });
+
+export const setPropertyExecutives = (id: string, executiveIds: string[]) =>
+  a<PropertyDetail & { assignedPendingLeads: number }>(`/admin/properties/${enc(id)}/executives`, {
+    method: "PUT",
+    body: { executiveIds },
+  });
+
+// ---- Leads ----
+
+export type LeadFilters = {
+  status?: string;
+  propertyId?: string;
+  executiveId?: string;
+  search?: string;
+  limit?: string;
+  offset?: string;
+};
+
+export type NewLead = {
+  name: string;
+  mobile: string;
+  email?: string;
+  propertyName: string;
+  source: string;
+  requirement?: string;
+  customerType?: string;
+  budget?: number;
+  message?: string;
+  externalLeadId?: string;
+};
+
+export const listLeads = (filters: LeadFilters = {}) => a<Lead[]>("/admin/leads", { query: filters });
+
+export const getLead = cache((id: string) => a<LeadDetail>(`/admin/leads/${enc(id)}`));
+
+export const createLead = (body: NewLead) => a<Lead>("/admin/leads", { method: "POST", body });
+
+export const setLeadStatus = (id: string, status: string) =>
+  a<Lead>(`/admin/leads/${enc(id)}/status`, { method: "PATCH", body: { status } });
+
+// ---- Clients ----
+
+export const listCustomers = (filters: { search?: string; limit?: string; offset?: string } = {}) =>
+  a<Customer[]>("/admin/customers", { query: filters });
+
+export const getCustomer = cache((id: string) => a<CustomerDetail>(`/admin/customers/${enc(id)}`));
+
+export const updateCustomer = (id: string, body: { name?: string; email?: string | null }) =>
+  a<Customer>(`/admin/customers/${enc(id)}`, { method: "PATCH", body });

@@ -7,11 +7,12 @@ type Props = {
   children: React.ReactNode;
   pendingLabel?: string;
   variant?: "solid" | "line" | "danger";
+  size?: "sm";
   confirm?: string;
 };
 
 /** Submit button that shows progress, and explains the wait when the backend is cold-starting. */
-export function SubmitButton({ children, pendingLabel = "Working…", variant = "solid", confirm }: Props) {
+export function SubmitButton({ children, pendingLabel = "Working…", variant = "solid", size, confirm }: Props) {
   const { pending } = useFormStatus();
   const slow = useSlow(pending);
 
@@ -19,7 +20,7 @@ export function SubmitButton({ children, pendingLabel = "Working…", variant = 
     <span className="submit">
       <button
         type="submit"
-        className={`btn btn-${variant}`}
+        className={`btn btn-${variant}${size ? ` btn-${size}` : ""}`}
         disabled={pending}
         aria-busy={pending}
         onClick={(event) => {
@@ -28,7 +29,9 @@ export function SubmitButton({ children, pendingLabel = "Working…", variant = 
       >
         {pending ? pendingLabel : children}
       </button>
-      {slow && <span className="hint">The server is waking up. This can take about 30 seconds.</span>}
+      {slow && process.env.NEXT_PUBLIC_SHOW_WAKEUP_HINT && (
+        <span className="hint">The server is waking up. This can take about 30 seconds.</span>
+      )}
     </span>
   );
 }

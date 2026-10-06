@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ActionForm } from "@/components/ActionForm";
 import { StatusBadge } from "@/components/StatusBadge";
+import { deleteExecutiveAction } from "@/lib/actions/executives";
 import { listExecutives, listTeams } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Executives" };
@@ -24,7 +26,7 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
           <h1>Executives</h1>
         </div>
         <Link className="btn btn-solid" href="/admin/executives/new">
-          New executive
+          + New executive
         </Link>
       </div>
 
@@ -69,7 +71,12 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
         )}
       </form>
 
-      <div className="table-wrap">
+      <p className="muted result-count">
+        {executives.length} {executives.length === 1 ? "executive" : "executives"}
+        {filtered ? " found" : ""}
+      </p>
+
+      <div className="table-wrap table-exec">
         <table>
           <thead>
             <tr>
@@ -78,14 +85,22 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
               <th>Phone</th>
               <th>Team</th>
               <th>Status</th>
+              <th className="col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {executives.map((exec) => (
               <tr key={exec.id}>
                 <td>
-                  <Link href={`/admin/executives/${exec.id}`}>{exec.name}</Link>
-                  <div className="muted">@{exec.username}</div>
+                  <div className="person">
+                    <span className="avatar" aria-hidden="true">
+                      {exec.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("")}
+                    </span>
+                    <div>
+                      <Link className="person-name" href={`/admin/executives/${exec.id}`}>{exec.name}</Link>
+                      <div className="muted person-sub">@{exec.username}</div>
+                    </div>
+                  </div>
                 </td>
                 <td>{exec.email}</td>
                 <td>{exec.phone ?? <span className="muted">—</span>}</td>
@@ -93,11 +108,26 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
                 <td>
                   <StatusBadge active={exec.isActive} />
                 </td>
+                <td className="col-actions">
+                  <div className="row-actions">
+                    <Link className="btn btn-line btn-sm" href={`/admin/executives/${exec.id}`}>
+                      Edit
+                    </Link>
+                    <ActionForm
+                      action={deleteExecutiveAction.bind(null, exec.id)}
+                      label="Delete"
+                      pendingLabel="Deleting…"
+                      variant="danger"
+                      size="sm"
+                      confirm={`Delete ${exec.name}? They will be deactivated and hidden from lists.`}
+                    />
+                  </div>
+                </td>
               </tr>
             ))}
             {executives.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty">
+                <td colSpan={6} className="empty">
                   {filtered ? "No executives match these filters." : "No executives yet."}
                 </td>
               </tr>

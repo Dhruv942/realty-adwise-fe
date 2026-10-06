@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { getSession } from "./session";
 import type { FieldErrors, Role } from "./types";
 
-const BASE_URL = (process.env.API_BASE_URL ?? "https://reality-dewise.onrender.com/api/v1").replace(/\/$/, "");
+const API_BASE_URL = process.env.API_BASE_URL;
+if (!API_BASE_URL) throw new Error("API_BASE_URL is not set. Add it to .env.local, e.g. API_BASE_URL=http://localhost:4000/api/v1");
+const BASE_URL = API_BASE_URL.replace(/\/$/, "");
 
-// Render's free tier can take ~30s to wake up, so allow well beyond that.
+// Hosted backends on free tiers can take ~30s to start, so allow well beyond that.
 const TIMEOUT_MS = 60_000;
 
 export class ApiError extends Error {
@@ -24,7 +26,7 @@ export class ApiError extends Error {
 type Query = Record<string, string | undefined>;
 
 type RequestOptions = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   body?: unknown;
   query?: Query;
   token?: string;
@@ -56,7 +58,7 @@ export async function apiRequest<T>(path: string, { method = "GET", body, query,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch {
-    throw new ApiError(503, "Couldn't reach the server. It may be waking up, so try again in a moment.");
+    throw new ApiError(503, `Couldn't reach the server at ${new URL(BASE_URL).origin}. Check that it is running, then try again.`);
   }
 
   const text = await res.text();

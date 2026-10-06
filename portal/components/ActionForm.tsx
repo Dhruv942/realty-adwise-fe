@@ -10,19 +10,20 @@ type Props = {
   label: string;
   pendingLabel?: string;
   variant?: "solid" | "line" | "danger";
+  size?: "sm";
   confirm?: string;
   hidden?: Record<string, string>;
 };
 
 /** A one-button form for quick actions like activate, deactivate or delete. */
-export function ActionForm({ action, label, pendingLabel, variant = "line", confirm, hidden }: Props) {
+export function ActionForm({ action, label, pendingLabel, variant = "line", size, confirm, hidden }: Props) {
   const [state, formAction] = useActionState(action, idleState);
   return (
     <form action={formAction} className="action-form">
       {Object.entries(hidden ?? {}).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
-      <SubmitButton variant={variant} pendingLabel={pendingLabel} confirm={confirm}>
+      <SubmitButton variant={variant} size={size} pendingLabel={pendingLabel} confirm={confirm}>
         {label}
       </SubmitButton>
       <FormMessage state={state} />
