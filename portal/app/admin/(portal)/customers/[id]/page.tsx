@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EnquiryBadge } from "@/components/EnquiryBadge";
 import { notFound } from "next/navigation";
 import { EditCustomerForm } from "@/components/LeadForms";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
@@ -36,9 +37,7 @@ export default async function CustomerPage({ params }: Props) {
             <span aria-hidden="true">←</span> Clients
           </Link>
           <h1>{c.name}</h1>
-          <p className="muted">
-            {c.mobile} · {c.type === "COMPANY" ? "Company" : "Individual"}
-          </p>
+          <p className="muted">{c.mobile}</p>
         </div>
       </div>
 
@@ -64,7 +63,10 @@ export default async function CustomerPage({ params }: Props) {
                       <Link href={`/admin/leads/${l.id}`}>#{l.leadNo}</Link>
                       <div className="muted person-sub">{formatDate(l.createdAt)}</div>
                     </td>
-                    <td>{l.property.name}</td>
+                    <td>
+                      {l.property.name}
+                      {l.enquiryType && <EnquiryBadge type={l.enquiryType} className="ml-2" />}
+                    </td>
                     <td>{l.requirement ?? <span className="muted">—</span>}</td>
                     <td>{formatBudget(l.budget)}</td>
                     <td>{l.assignedExecutive?.name ?? <span className="muted">Unassigned</span>}</td>

@@ -47,7 +47,6 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
               <th>Name</th>
               <th>Mobile</th>
               <th className="hidden md:table-cell">Email</th>
-              <th className="hidden lg:table-cell">Type</th>
               <th className="hidden sm:table-cell">Added</th>
             </tr>
           </thead>
@@ -61,13 +60,12 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                 </td>
                 <td className="num whitespace-nowrap">{c.mobile}</td>
                 <td className="hidden md:table-cell">{c.email ?? <span className="muted">—</span>}</td>
-                <td className="hidden lg:table-cell">{c.type === "COMPANY" ? "Company" : "Individual"}</td>
                 <td className="muted hidden whitespace-nowrap sm:table-cell">{formatDate(c.createdAt)}</td>
               </tr>
             ))}
             {customers.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty">
+                <td colSpan={4} className="empty">
                   {search ? (
                     <>
                       <strong>No clients match “{search}”</strong>

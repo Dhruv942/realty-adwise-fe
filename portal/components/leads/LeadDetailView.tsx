@@ -6,7 +6,7 @@ import { LeadStatusForm } from "@/components/LeadForms";
 import { ActivityTimeline } from "@/components/leads/ActivityTimeline";
 import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
-import type { FormState, LeadDetail, Role } from "@/lib/types";
+import { ENQUIRY_LABEL, type FormState, type LeadDetail, type Role } from "@/lib/types";
 import { AssignForm } from "./AssignForm";
 import { ImportantButton } from "./ImportantButton";
 
@@ -89,8 +89,8 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
               </dd>
               <dt>Email</dt>
               <dd>{lead.customer.email ?? "—"}</dd>
-              <dt>Client type</dt>
-              <dd>{lead.customer.type === "COMPANY" ? "Company" : "Individual"}</dd>
+              <dt>Looking to</dt>
+              <dd>{lead.enquiryType ? ENQUIRY_LABEL[lead.enquiryType] : "—"}</dd>
               <dt>Property</dt>
               <dd>
                 {role === "ADMIN" ? <Link href={`/admin/properties/${lead.property.id}`}>{lead.property.name}</Link> : lead.property.name}
@@ -112,7 +112,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
           </section>
 
           <section className="panel">
-            <h2>Activity timeline</h2>
+            <h2>Activity Timeline</h2>
             <ActivityTimeline activity={lead.activity ?? []} />
           </section>
 

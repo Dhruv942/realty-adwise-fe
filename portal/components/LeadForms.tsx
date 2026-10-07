@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { LEAD_SOURCES, LEAD_STATUSES, idleState, type FormState, type LeadStatus } from "@/lib/types";
+import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, idleState, type FormState, type LeadStatus } from "@/lib/types";
 import { statusLabel } from "@/lib/format";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
@@ -34,14 +34,18 @@ export function CreateLeadForm({ action, executives }: { action: Action; executi
           {err?.source && <p className="field-error">{err.source}</p>}
         </div>
         <Field label="Requirement (optional)" name="requirement" maxLength={200} defaultValue={v?.requirement} error={err?.requirement} hint="e.g. 3 BHK on Rent" />
-        <div className={`field${err?.customerType ? " has-error" : ""}`}>
-          <label htmlFor="f-customerType">Client type</label>
-          <select id="f-customerType" name="customerType" defaultValue={v?.customerType ?? "INDIVIDUAL"}>
-            <option value="INDIVIDUAL">Individual</option>
-            <option value="COMPANY">Company</option>
-          </select>
-          <p className="field-hint">Only used when this creates a new client.</p>
-        </div>
+        <fieldset className={`field${err?.enquiryType ? " has-error" : ""}`}>
+          <legend>Looking to (optional)</legend>
+          <div className="flex gap-5 pt-1">
+            {(["RENT", "BUY"] as const).map((o) => (
+              <label key={o} className="flex items-center gap-2">
+                <input type="radio" name="enquiryType" value={o} defaultChecked={v?.enquiryType === o} className="size-[18px] accent-primary" />
+                {ENQUIRY_LABEL[o]}
+              </label>
+            ))}
+          </div>
+          {err?.enquiryType && <p className="field-error">{err.enquiryType}</p>}
+        </fieldset>
         {executives && (
           <div className={`field${err?.executiveId ? " has-error" : ""}`}>
             <label htmlFor="f-executiveId">Assign to</label>

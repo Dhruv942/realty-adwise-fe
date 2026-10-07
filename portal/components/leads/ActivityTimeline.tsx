@@ -1,37 +1,30 @@
-import { ArrowRightLeft, CircleAlert, Clock, Inbox, RefreshCw, UserCheck, type LucideIcon } from "lucide-react";
-import { formatDate } from "@/lib/format";
-import type { ActivityEntry, ActivityType } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import type { ActivityEntry } from "@/lib/types";
 
-const STYLE: Record<ActivityType, { icon: LucideIcon; tone: string }> = {
-  LEAD_RECEIVED: { icon: Inbox, tone: "bg-muted text-foreground" },
-  ASSIGNED: { icon: UserCheck, tone: "bg-muted text-foreground" },
-  SLA_STARTED: { icon: Clock, tone: "bg-muted text-muted-foreground" },
-  STATUS_CHANGED: { icon: RefreshCw, tone: "bg-success-soft text-success" },
-  SLA_BREACHED: { icon: CircleAlert, tone: "bg-destructive-soft text-destructive" },
-  AUTO_REASSIGNED: { icon: ArrowRightLeft, tone: "bg-warning-soft text-warning" },
-};
+const time = new Intl.DateTimeFormat("en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" });
+const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" });
+const dayLabel = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+
+/** "3:54 pm" for today, "6 Oct, 3:54 pm" for earlier days. */
+function when(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const t = time.format(d).toLowerCase();
+  return day.format(d) === day.format(new Date()) ? t : `${dayLabel.format(d)}, ${t}`;
+}
 
 /** What happened to a lead, oldest first. Every row is stored by the backend, so a refresh shows the same list. */
 export function ActivityTimeline({ activity }: { activity: ActivityEntry[] }) {
   if (activity.length === 0) return <p className="muted">No activity recorded yet.</p>;
   return (
-    <ol className="grid">
-      {activity.map((a, i) => {
-        const { icon: Icon, tone } = STYLE[a.type] ?? STYLE.LEAD_RECEIVED;
-        return (
-          <li key={a.id} className="relative flex gap-3 pb-4 last:pb-0">
-            {i < activity.length - 1 && <span aria-hidden="true" className="absolute left-4 top-8 bottom-0 w-px bg-border" />}
-            <span className={cn("relative grid size-8 shrink-0 place-items-center rounded-full", tone)}>
-              <Icon className="size-4" aria-hidden="true" />
-            </span>
-            <div className="min-w-0 pt-0.5">
-              <p className="text-sm font-medium">{a.message}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(a.createdAt)}</p>
-            </div>
-          </li>
-        );
-      })}
+    <ol className="relative grid gap-5 pl-5">
+      <span aria-hidden="true" className="absolute bottom-1 left-[3px] top-1.5 w-px bg-border" />
+      {activity.map((a) => (
+        <li key={a.id} className="relative">
+          <span aria-hidden="true" className="absolute -left-5 top-[5px] size-[7px] rounded-full bg-[#6366f1]" />
+          <p className="text-xs text-muted-foreground">{when(a.createdAt)}</p>
+          <p className="text-sm">{a.message}</p>
+        </li>
+      ))}
     </ol>
   );
 }

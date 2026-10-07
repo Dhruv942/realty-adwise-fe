@@ -104,7 +104,7 @@ export type NewLead = {
   propertyName: string;
   source: string;
   requirement?: string;
-  customerType?: string;
+  enquiryType?: string;
   budget?: number;
   message?: string;
   /** Manager only: the executive who gets the lead. */

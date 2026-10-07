@@ -95,11 +95,13 @@ export type Lead = {
   requestedPropertyName: string;
   externalLeadId: string | null;
   source: LeadSource;
-  customer: { id: string; name: string; mobile: string; email: string | null; type: CustomerType };
+  customer: { id: string; name: string; mobile: string; email: string | null };
   property: { id: string; name: string; location: string | null };
   assignedExecutive: { id: string; name: string } | null;
   leadNo: number;
   requirement: string | null;
+  /** Rent or buy. Null for older leads and feed leads. */
+  enquiryType: EnquiryType | null;
   isImportant: boolean;
   isNew: boolean;
   assignedAt: string | null;
@@ -109,7 +111,8 @@ export type Lead = {
   updatedAt: string;
 };
 
-export type CustomerType = "INDIVIDUAL" | "COMPANY";
+export type EnquiryType = "RENT" | "BUY";
+export const ENQUIRY_LABEL: Record<EnquiryType, string> = { RENT: "Rent", BUY: "Buy" };
 
 /** One of the client's other enquiries, as shown in lead detail. */
 export type HistoryEntry = Omit<Lead, "customer" | "property" | "assignedExecutive" | "sla"> & {
@@ -134,7 +137,6 @@ export type Customer = {
   name: string;
   mobile: string;
   email: string | null;
-  type: CustomerType;
   createdAt: string;
   updatedAt: string;
 };

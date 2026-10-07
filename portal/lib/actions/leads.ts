@@ -11,7 +11,7 @@ import type { FormState, Lead, Role } from "@/lib/types";
 
 const AREA: Record<Role, string> = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" };
 
-const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "customerType", "executiveId"];
+const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "enquiryType", "executiveId"];
 
 async function createLeadFor(role: "ADMIN" | "MANAGER", formData: FormData): Promise<FormState> {
   const values = echo(formData, FIELDS);
@@ -28,7 +28,7 @@ async function createLeadFor(role: "ADMIN" | "MANAGER", formData: FormData): Pro
   if (values.email) body.email = values.email;
   if (budgetRaw) body.budget = Number(budgetRaw);
   if (values.requirement) body.requirement = values.requirement;
-  if (values.customerType) body.customerType = values.customerType;
+  if (values.enquiryType) body.enquiryType = values.enquiryType;
   if (values.message) body.message = values.message;
   if (role === "MANAGER") {
     if (!values.executiveId) return { status: "error", fieldErrors: { executiveId: "Choose an executive" }, values };

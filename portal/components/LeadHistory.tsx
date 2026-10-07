@@ -1,5 +1,6 @@
 import type { HistoryEntry } from "@/lib/types";
 import { formatBudget, formatDate } from "@/lib/format";
+import { EnquiryBadge } from "./EnquiryBadge";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 
 export function LeadHistory({ history, count }: { history: HistoryEntry[]; count: number }) {
@@ -13,7 +14,10 @@ export function LeadHistory({ history, count }: { history: HistoryEntry[]; count
         {history.map((h) => (
           <li key={h.id}>
             <div className="history-head">
-              <strong>{h.property.name}</strong>
+              <strong>
+                {h.property.name}
+                {h.enquiryType && <EnquiryBadge type={h.enquiryType} className="ml-2" />}
+              </strong>
               <LeadStatusBadge status={h.status} />
             </div>
             <div className="muted person-sub">
