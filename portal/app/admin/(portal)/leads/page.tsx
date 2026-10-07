@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LeadsView, parseLeadQuery } from "@/components/leads/LeadsView";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { getLeadTimeout, listExecutives, listLeads, listProperties } from "@/lib/admin";
+import { listExecutives, listLeads, listProperties } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Leads" };
 
@@ -11,7 +11,7 @@ const PAGE = 50;
 
 export default async function LeadsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = parseLeadQuery(await searchParams);
-  const [rows, properties, executives, timeout] = await Promise.all([
+  const [rows, properties, executives] = await Promise.all([
     listLeads({
       search: query.search.trim() || undefined,
       status: query.status || undefined,
@@ -23,7 +23,6 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     }),
     listProperties(),
     listExecutives(),
-    getLeadTimeout().catch(() => null),
   ]);
 
   return (
@@ -46,7 +45,6 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         query={query}
         properties={properties}
         executives={executives}
-        slaMinutes={timeout?.minutes}
       />
     </>
   );

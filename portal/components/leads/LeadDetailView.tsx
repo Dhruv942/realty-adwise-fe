@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LeadHistory } from "@/components/LeadHistory";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { LeadStatusForm } from "@/components/LeadForms";
+import { ActivityTimeline } from "@/components/leads/ActivityTimeline";
 import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
 import type { FormState, LeadDetail, Role } from "@/lib/types";
@@ -21,11 +22,9 @@ type Props = {
   /** Admin only: where to send the user when the lead has no executive. */
   propertyHref?: string;
   created?: boolean;
-  /** Response time in minutes, when the viewer can read the setting (admin). */
-  slaMinutes?: number;
 };
 
-export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, propertyHref, created, slaMinutes }: Props) {
+export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, propertyHref, created }: Props) {
   const pending = lead.status === "PENDING_ASSIGNMENT";
   const phone = lead.customer.mobile;
 
@@ -59,7 +58,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         </div>
       </div>
 
-      <SlaClock status={lead.status} assignedAt={lead.assignedAt} minutes={slaMinutes} role={role} executiveName={lead.assignedExecutive?.name} />
+      <SlaClock sla={lead.sla} role={role} executiveName={lead.assignedExecutive?.name} />
 
       {created && !pending && (
         <p className="notice notice-success" role="status">
@@ -110,6 +109,11 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
               <dt>Received</dt>
               <dd>{formatDate(lead.createdAt)}</dd>
             </dl>
+          </section>
+
+          <section className="panel">
+            <h2>Activity timeline</h2>
+            <ActivityTimeline activity={lead.activity ?? []} />
           </section>
 
           <section className="panel">

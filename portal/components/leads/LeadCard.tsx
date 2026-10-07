@@ -14,7 +14,7 @@ const LONG_PRESS_MS = 550;
 const MOVE_TOLERANCE = 10;
 
 /** One lead. Long-press (or tap the star) toggles Important for the signed-in user. */
-export function LeadCard({ lead, role, href, showExecutive = true, slaMinutes }: { lead: Lead; role: Role; href: string; showExecutive?: boolean; slaMinutes?: number }) {
+export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lead; role: Role; href: string; showExecutive?: boolean }) {
   const [important, setImportant] = useState(lead.isImportant);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export function LeadCard({ lead, role, href, showExecutive = true, slaMinutes }:
           {lead.property.location ? `, ${lead.property.location}` : ""}
           {meta && ` · ${meta}`}
         </p>
-        <SlaClock variant="chip" status={lead.status} assignedAt={lead.assignedAt} minutes={slaMinutes} role={role} executiveName={lead.assignedExecutive?.name} />
+        <SlaClock variant="chip" sla={lead.sla} role={role} executiveName={lead.assignedExecutive?.name} />
         <p className="mt-1 text-xs text-muted-foreground">
           {lead.source}
           {showExecutive && <> · {lead.assignedExecutive ? lead.assignedExecutive.name : "Unassigned"}</>}

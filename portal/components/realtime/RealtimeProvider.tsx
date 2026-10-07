@@ -7,7 +7,7 @@ import { listNotificationsAction, markAllNotificationsReadAction, markNotificati
 import type { AppNotification, SessionUser } from "@/lib/types";
 
 const AUTH_ERRORS = ["Authentication token missing", "Invalid token", "Token expired", "Session expired, please log in again", "Authentication failed"];
-const LEAD_EVENTS = ["lead:created", "lead:assigned", "lead:reassigned", "lead:status-updated", "lead:sla-warning", "lead:sla-expired"] as const;
+const LEAD_EVENTS = ["lead:created", "lead:assigned", "lead:reassigned", "lead:status-updated", "lead:sla-warning", "lead:sla-expired", "lead:activity-created"] as const;
 const AREA = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" } as const;
 
 type Toast = { id: number; title: string; message: string; href: string; tone: "info" | "warn" };

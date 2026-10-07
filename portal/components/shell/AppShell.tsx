@@ -3,11 +3,14 @@
 import { LogOut, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRef } from "react";
 import { logout } from "@/lib/actions/auth";
 import type { SessionUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { EnableNotifications } from "@/components/realtime/EnableNotifications";
+import { disablePush } from "@/lib/push-client";
 import { NotificationBell } from "@/components/realtime/NotificationBell";
 import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
 import { NAV, SEARCH_ACTION, type NavItem } from "./nav";
@@ -58,9 +61,21 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-function LogoutButton({ rail }: { rail?: boolean }) {
+function LogoutButton({ rail, role }: { rail?: boolean; role: SessionUser["role"] }) {
+  const unsubscribed = useRef(false);
   return (
-    <form action={logout}>
+    <form
+      action={logout}
+      onSubmit={async (e) => {
+        // Stop alerts for this browser while the session still exists, then log out.
+        if (unsubscribed.current) return;
+        e.preventDefault();
+        const form = e.currentTarget;
+        await disablePush(role);
+        unsubscribed.current = true;
+        form.requestSubmit();
+      }}
+    >
       <button
         type="submit"
         data-tip={rail ? "Log out" : undefined}
@@ -139,7 +154,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
               <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
             </span>
           </div>
-          <LogoutButton rail />
+          <LogoutButton rail role={user.role} />
         </div>
       </aside>
 
@@ -166,7 +181,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
                     </span>
                     <ThemeToggle tip="tip-left" />
                   </div>
-                  <LogoutButton />
+                  <LogoutButton role={user.role} />
                 </div>
               </div>
             </SheetContent>
@@ -198,6 +213,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
         </header>
 
         <main id="main" tabIndex={-1} className="page-enter mx-auto grid max-w-6xl gap-5 px-4 py-5 pb-28 outline-none sm:gap-6 sm:px-6 sm:py-7 sm:pb-10">
+          <EnableNotifications role={user.role} />
           {children}
         </main>
       </div>

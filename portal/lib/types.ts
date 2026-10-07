@@ -103,6 +103,8 @@ export type Lead = {
   isImportant: boolean;
   isNew: boolean;
   assignedAt: string | null;
+  /** The backend's SLA for the assigned executive, while the lead is Incoming. The portal only counts down to it. */
+  sla: { minutes: number; deadline: string; now: string } | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -110,12 +112,22 @@ export type Lead = {
 export type CustomerType = "INDIVIDUAL" | "COMPANY";
 
 /** One of the client's other enquiries, as shown in lead detail. */
-export type HistoryEntry = Omit<Lead, "customer" | "property" | "assignedExecutive"> & {
+export type HistoryEntry = Omit<Lead, "customer" | "property" | "assignedExecutive" | "sla"> & {
   property: { id?: string; name: string; location?: string | null };
   assignedExecutive: { id?: string; name: string } | null;
 };
 
-export type LeadDetail = Lead & { customerEnquiryCount: number; customerHistory: HistoryEntry[] };
+export type ActivityType = "LEAD_RECEIVED" | "ASSIGNED" | "SLA_STARTED" | "STATUS_CHANGED" | "SLA_BREACHED" | "AUTO_REASSIGNED";
+export type ActivityEntry = {
+  id: string;
+  type: ActivityType;
+  message: string;
+  actor: { id: string; name: string | null } | null;
+  executiveId: string | null;
+  createdAt: string;
+};
+
+export type LeadDetail = Lead & { customerEnquiryCount: number; customerHistory: HistoryEntry[]; activity: ActivityEntry[] };
 
 export type Customer = {
   id: string;

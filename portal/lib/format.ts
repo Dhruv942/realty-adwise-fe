@@ -24,7 +24,7 @@ export function whatsappUrl(mobile: string): string {
   return `https://wa.me/${mobile.replace(/\D/g, "")}`;
 }
 
-/** Default SLA. Admins can change it and read the real value; managers and executives only see reminders based on this default. */
+/** Fallback only. The backend sends each lead's real SLA (`lead.sla`). */
 export const SLA_MINUTES = 90;
 
 const clock = new Intl.DateTimeFormat("en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" });

@@ -1,15 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SLA_MINUTES, slaDeadline } from "@/lib/format";
-import type { LeadStatus, Role } from "@/lib/types";
+import type { Lead, Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  status: LeadStatus;
-  assignedAt: string | null;
-  /** Response time in minutes. Defaults to the standard 90. */
-  minutes?: number;
+  /** The backend's SLA for this lead (`lead.sla`). Null once the lead has a status or no executive. */
+  sla: Lead["sla"];
   role: Role;
   executiveName?: string | null;
   /** "chip" is a small pill for lead lists. "panel" is the large card on a lead page. */
@@ -51,9 +49,27 @@ function Ring({ fraction, tone, size }: { fraction: number; tone: Tone; size: nu
   );
 }
 
-/** Countdown for a lead that is waiting for its first status change. Renders nothing once the lead has moved on. */
-export function SlaClock({ status, assignedAt, minutes = SLA_MINUTES, role, executiveName, variant = "panel" }: Props) {
+const clock = new Intl.DateTimeFormat("en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" });
+const POLL_MS = 3000;
+const POLL_FOR_MS = 120_000;
+
+/**
+ * Countdown for a lead that is waiting for its first status change. The deadline comes from the backend and the
+ * clock only displays it: reaching zero never moves the lead. When it does hit zero we ask the server for the
+ * lead again (and keep asking for a while), because the backend reassigns it a moment later. The refreshed lead
+ * carries the next executive's SLA, so this clock simply starts again for them.
+ */
+export function SlaClock({ sla, role, executiveName, variant = "panel" }: Props) {
+  const router = useRouter();
+  const deadlineMs = sla ? Date.parse(sla.deadline) : null;
+  const serverNow = sla ? Date.parse(sla.now) : null;
   const [now, setNow] = useState<number | null>(null);
+  // How far the server's clock is ahead of this device, so a wrong device clock doesn't move the deadline.
+  const [skew, setSkew] = useState(0);
+
+  useEffect(() => {
+    if (serverNow !== null) setSkew(serverNow - Date.now());
+  }, [serverNow]);
 
   useEffect(() => {
     setNow(Date.now());
@@ -61,16 +77,27 @@ export function SlaClock({ status, assignedAt, minutes = SLA_MINUTES, role, exec
     return () => clearInterval(timer);
   }, []);
 
-  const deadline = slaDeadline(status, assignedAt, minutes);
-  if (!deadline || !assignedAt) return null;
+  const over = deadlineMs !== null && now !== null && now + skew >= deadlineMs;
 
-  const total = minutes * 60_000;
-  const end = new Date(assignedAt).getTime() + total;
-  const remaining = now === null ? total : end - now;
+  useEffect(() => {
+    if (!over) return;
+    router.refresh();
+    const started = Date.now();
+    const poll = setInterval(() => {
+      if (Date.now() - started > POLL_FOR_MS) return clearInterval(poll);
+      router.refresh();
+    }, POLL_MS);
+    return () => clearInterval(poll);
+  }, [over, deadlineMs, router]);
+
+  if (!sla || deadlineMs === null) return null;
+
+  const total = sla.minutes * 60_000;
+  const remaining = now === null ? deadlineMs - (serverNow ?? deadlineMs) : deadlineMs - (now + skew);
   const fraction = Math.min(1, Math.max(0, remaining / total));
-  const over = remaining <= 0;
   const tone: Tone = fraction > 0.5 ? "good" : fraction > 0.2 ? "soon" : "late";
   const t = TONE[tone];
+  const deadline = clock.format(new Date(deadlineMs));
   const who = role === "EXECUTIVE" ? "You" : (executiveName ?? "The executive");
   const timeText = now === null ? `by ${deadline}` : over ? "Time is up" : `${left(remaining)} left`;
 
@@ -79,7 +106,7 @@ export function SlaClock({ status, assignedAt, minutes = SLA_MINUTES, role, exec
       <span className={cn("mt-1.5 inline-flex items-center gap-2 rounded-full border py-0.5 pl-1 pr-3 text-xs font-medium", t.soft, t.border, t.text)} title={`Status must be updated by ${deadline}`}>
         <Ring fraction={fraction} tone={tone} size={26} />
         <span className="tabular-nums">{timeText}</span>
-        <span className="font-normal text-muted-foreground">· update by {deadline}</span>
+        <span className="font-normal text-muted-foreground">{over ? "· moving to the next executive" : `· update by ${deadline}`}</span>
       </span>
     );
   }
@@ -92,7 +119,7 @@ export function SlaClock({ status, assignedAt, minutes = SLA_MINUTES, role, exec
         <p className="num text-2xl font-semibold leading-tight text-foreground tabular-nums">{over ? "0:00" : left(remaining)}</p>
         <p className="mt-1 text-sm text-muted-foreground">
           {over
-            ? `${who} did not update the status in time. The lead will move to the next executive.`
+            ? `${who} did not update the status in time. Moving the lead to the next executive…`
             : `${who} must change the status by ${deadline}, or the lead moves to the next executive.`}
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">Opening the lead does not stop the clock. Only changing the status does.</p>
