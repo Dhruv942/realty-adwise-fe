@@ -89,7 +89,12 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
         loadNotifications();
         router.refresh();
       });
-      socket.on("disconnect", () => setConnected(false));
+      socket.on("disconnect", (reason) => {
+        setConnected(false);
+        // The server closes sockets when an account is deactivated or its password changes, and the client
+        // does not retry on its own after that. Reconnect once: a revoked session fails auth and signs out.
+        if (reason === "io server disconnect") socket?.connect();
+      });
       socket.on("connect_error", (err) => {
         setConnected(false);
         console.warn("[realtime] connect_error:", err.message);
