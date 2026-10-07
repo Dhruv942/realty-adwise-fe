@@ -4,14 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { assignLeadAsAdmin, createLead, setLeadStatus, type NewLead } from "@/lib/admin";
 import { authedRequest } from "@/lib/api";
-import { assignLeadAsManager } from "@/lib/manager";
+import { assignLeadAsManager, createLeadAsManager } from "@/lib/manager";
 import { setMyLeadStatus } from "@/lib/executive";
 import { echo, str, toFormState } from "@/lib/forms";
 import type { FormState, Lead, Role } from "@/lib/types";
 
-const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "customerType"];
+const AREA: Record<Role, string> = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" };
 
-export async function createLeadAction(_prev: FormState, formData: FormData): Promise<FormState> {
+const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "customerType", "executiveId"];
+
+async function createLeadFor(role: "ADMIN" | "MANAGER", formData: FormData): Promise<FormState> {
   const values = echo(formData, FIELDS);
   const budgetRaw = values.budget.replace(/[,\s]/g, "");
   if (budgetRaw && !/^\d+(\.\d+)?$/.test(budgetRaw)) {
@@ -28,15 +30,28 @@ export async function createLeadAction(_prev: FormState, formData: FormData): Pr
   if (values.requirement) body.requirement = values.requirement;
   if (values.customerType) body.customerType = values.customerType;
   if (values.message) body.message = values.message;
+  if (role === "MANAGER") {
+    if (!values.executiveId) return { status: "error", fieldErrors: { executiveId: "Choose an executive" }, values };
+    body.executiveId = values.executiveId;
+  }
 
   let id: string;
   try {
-    id = (await createLead(body)).id;
+    id = (await (role === "ADMIN" ? createLead : createLeadAsManager)(body)).id;
   } catch (error) {
     return toFormState(error, values);
   }
-  revalidatePath("/admin", "layout");
-  redirect(`/admin/leads/${id}?created=1`);
+
+  revalidatePath(`/${AREA[role]}`, "layout");
+  redirect(`/${AREA[role]}/leads/${id}?created=1`);
+}
+
+export async function createLeadAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  return createLeadFor("ADMIN", formData);
+}
+
+export async function createManagerLeadAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  return createLeadFor("MANAGER", formData);
 }
 
 export async function updateLeadStatusAction(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
@@ -59,8 +74,6 @@ export async function updateMyLeadStatusAction(id: string, _prev: FormState, for
   revalidatePath("/executive", "layout");
   return { status: "success", message: "Status updated." };
 }
-
-const AREA: Record<Role, string> = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" };
 
 /** Long-press / star toggle. Saved per user on the server; both calls are idempotent. */
 export async function setImportantAction(

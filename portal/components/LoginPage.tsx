@@ -1,27 +1,23 @@
-import Link from "next/link";
 import { login } from "@/lib/actions/auth";
 import type { Role } from "@/lib/types";
 import { AuthLayout } from "./AuthLayout";
 import { LoginForm } from "./LoginForm";
 
-const copy: Record<Role, { eyebrow: string; title: string; lede: string; other: { href: string; label: string } }> = {
+const copy: Record<Role, { eyebrow: string; title: string; lede: string }> = {
   ADMIN: {
     eyebrow: "Admin",
     title: "Manage your teams",
     lede: "Create teams, onboard executives and control who has access.",
-    other: { href: "/manager/login", label: "Manager? Sign in here" },
   },
   MANAGER: {
     eyebrow: "Manager",
     title: "Lead your team",
     lede: "See your team's leads, highlight the important ones and assign them to executives.",
-    other: { href: "/executive/login", label: "Executive? Sign in here" },
   },
   EXECUTIVE: {
     eyebrow: "Executive",
     title: "Welcome back",
     lede: "Sign in with the email and password your admin gave you.",
-    other: { href: "/admin/login", label: "Admin? Sign in here" },
   },
 };
 
@@ -45,9 +41,6 @@ export async function LoginPage({ role, searchParams }: Props) {
         </p>
       )}
       <LoginForm action={login.bind(null, role)} next={typeof next === "string" ? next : undefined} />
-      <Link className="auth-switch" href={text.other.href}>
-        {text.other.label}
-      </Link>
     </AuthLayout>
   );
 }

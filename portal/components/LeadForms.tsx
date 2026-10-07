@@ -9,7 +9,7 @@ import { SubmitButton } from "./SubmitButton";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-export function CreateLeadForm({ action }: { action: Action }) {
+export function CreateLeadForm({ action, executives }: { action: Action; executives?: { id: string; name: string }[] }) {
   const [state, formAction] = useActionState(action, idleState);
   const v = state.values;
   const err = state.fieldErrors;
@@ -42,6 +42,20 @@ export function CreateLeadForm({ action }: { action: Action }) {
           </select>
           <p className="field-hint">Only used when this creates a new client.</p>
         </div>
+        {executives && (
+          <div className={`field${err?.executiveId ? " has-error" : ""}`}>
+            <label htmlFor="f-executiveId">Assign to</label>
+            <select id="f-executiveId" name="executiveId" required defaultValue={v?.executiveId ?? ""}>
+              <option value="">Choose an executive</option>
+              {executives.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </select>
+            {err?.executiveId ? <p className="field-error">{err.executiveId}</p> : <p className="field-hint">The lead goes straight to this executive. Only executives in your teams are listed.</p>}
+          </div>
+        )}
         <Field label="Budget in rupees (optional)" name="budget" inputMode="numeric" defaultValue={v?.budget} error={err?.budget} hint="e.g. 8000000 for ₹80 Lakh." />
       </div>
       <div className={`field${err?.message ? " has-error" : ""}`}>

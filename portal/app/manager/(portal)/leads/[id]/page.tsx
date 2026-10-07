@@ -6,7 +6,7 @@ import { assignLeadAction } from "@/lib/actions/leads";
 import { ApiError } from "@/lib/api";
 import { getManagerLead, listManagerExecutives } from "@/lib/manager";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> };
 
 async function load(id: string) {
   try {
@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: (await load(id)).customer.name };
 }
 
-export default async function ManagerLeadPage({ params }: Props) {
-  const { id } = await params;
+export default async function ManagerLeadPage({ params, searchParams }: Props) {
+  const [{ id }, { created }] = await Promise.all([params, searchParams]);
   const [lead, executives] = await Promise.all([load(id), listManagerExecutives()]);
   return (
     <>
@@ -33,6 +33,7 @@ export default async function ManagerLeadPage({ params }: Props) {
       role="MANAGER"
       backHref="/manager/leads"
       backLabel="Leads"
+      created={Boolean(created)}
       assign={{
         action: assignLeadAction.bind(null, "MANAGER", lead.id),
         executives: executives.filter((e) => e.isActive).map((e) => ({ id: e.id, name: e.name, designation: e.designation })),

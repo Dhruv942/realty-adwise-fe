@@ -107,6 +107,8 @@ export type NewLead = {
   customerType?: string;
   budget?: number;
   message?: string;
+  /** Manager only: the executive who gets the lead. */
+  executiveId?: string;
 };
 
 export const listLeads = (filters: LeadFilters = {}) => a<Lead[]>("/admin/leads", { query: filters });
