@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { LeadDetailView } from "@/components/leads/LeadDetailView";
 import { assignLeadAction } from "@/lib/actions/leads";
 import { ApiError } from "@/lib/api";
@@ -25,6 +26,8 @@ export default async function ManagerLeadPage({ params }: Props) {
   const { id } = await params;
   const [lead, executives] = await Promise.all([load(id), listManagerExecutives()]);
   return (
+    <>
+    <AutoRefresh />
     <LeadDetailView
       lead={lead}
       role="MANAGER"
@@ -35,5 +38,6 @@ export default async function ManagerLeadPage({ params }: Props) {
         executives: executives.filter((e) => e.isActive).map((e) => ({ id: e.id, name: e.name, designation: e.designation })),
       }}
     />
+    </>
   );
 }

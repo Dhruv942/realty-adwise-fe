@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { setImportantAction } from "@/lib/actions/leads";
-import { formatBudget, formatDate, slaDeadline, whatsappUrl } from "@/lib/format";
+import { SlaClock } from "@/components/SlaClock";
+import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
 import type { Lead, Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,7 @@ const LONG_PRESS_MS = 550;
 const MOVE_TOLERANCE = 10;
 
 /** One lead. Long-press (or tap the star) toggles Important for the signed-in user. */
-export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lead; role: Role; href: string; showExecutive?: boolean }) {
+export function LeadCard({ lead, role, href, showExecutive = true, slaMinutes }: { lead: Lead; role: Role; href: string; showExecutive?: boolean; slaMinutes?: number }) {
   const [important, setImportant] = useState(lead.isImportant);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -65,7 +66,6 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
     if (Math.hypot(event.clientX - origin.current.x, event.clientY - origin.current.y) > MOVE_TOLERANCE) cancel();
   }
 
-  const deadline = role === "EXECUTIVE" ? slaDeadline(lead.status, lead.assignedAt) : null;
   const meta = [lead.requirement, lead.budget != null ? formatBudget(lead.budget) : null].filter(Boolean).join(" · ");
 
   return (
@@ -108,12 +108,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
           {lead.property.location ? `, ${lead.property.location}` : ""}
           {meta && ` · ${meta}`}
         </p>
-        {deadline && (
-          <p className="mt-1 flex items-start gap-1.5 text-xs font-medium text-warning">
-            <Clock className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-            Update the status by {deadline} or it moves to the next executive.
-          </p>
-        )}
+        <SlaClock variant="chip" status={lead.status} assignedAt={lead.assignedAt} minutes={slaMinutes} role={role} executiveName={lead.assignedExecutive?.name} />
         <p className="mt-1 text-xs text-muted-foreground">
           {lead.source}
           {showExecutive && <> · {lead.assignedExecutive ? lead.assignedExecutive.name : "Unassigned"}</>}

@@ -43,7 +43,6 @@ export function CreateLeadForm({ action }: { action: Action }) {
           <p className="field-hint">Only used when this creates a new client.</p>
         </div>
         <Field label="Budget in rupees (optional)" name="budget" inputMode="numeric" defaultValue={v?.budget} error={err?.budget} hint="e.g. 8000000 for ₹80 Lakh." />
-        <Field label="External lead ID (optional)" name="externalLeadId" defaultValue={v?.externalLeadId} error={err?.externalLeadId} hint="Repeating the same source and ID returns the existing lead." />
       </div>
       <div className={`field${err?.message ? " has-error" : ""}`}>
         <label htmlFor="f-message">Message (optional)</label>

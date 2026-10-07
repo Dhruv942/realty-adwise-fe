@@ -107,7 +107,6 @@ export type NewLead = {
   customerType?: string;
   budget?: number;
   message?: string;
-  externalLeadId?: string;
 };
 
 export const listLeads = (filters: LeadFilters = {}) => a<Lead[]>("/admin/leads", { query: filters });

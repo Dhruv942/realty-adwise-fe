@@ -20,6 +20,8 @@ type Props = {
   statuses?: readonly string[];
   statusCounts?: Partial<Record<string, number>>;
   showExecutive?: boolean;
+  /** Response time in minutes, when the viewer can read the setting (admin). */
+  slaMinutes?: number;
 };
 
 export function parseLeadQuery(sp: Record<string, string | undefined>, statuses: readonly string[] = LEAD_STATUSES): LeadQuery {
@@ -33,7 +35,7 @@ export function parseLeadQuery(sp: Record<string, string | undefined>, statuses:
   };
 }
 
-export function LeadsView({ role, base, detailBase, leads, hasNext, query, properties, executives, statuses = LEAD_STATUSES, statusCounts, showExecutive = true }: Props) {
+export function LeadsView({ role, base, detailBase, leads, hasNext, query, properties, executives, statuses = LEAD_STATUSES, statusCounts, showExecutive = true, slaMinutes }: Props) {
   const filtered = Boolean(query.search || query.status || query.propertyId || query.executiveId || query.important);
   const href = (n: number) => {
     const q = new URLSearchParams();
@@ -127,7 +129,7 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
             {leads.map((l) => (
               <li key={l.id}>
-                <LeadCard lead={l} role={role} href={`${detailBase}/${l.id}`} showExecutive={showExecutive} />
+                <LeadCard lead={l} role={role} href={`${detailBase}/${l.id}`} showExecutive={showExecutive} slaMinutes={slaMinutes} />
               </li>
             ))}
           </ul>

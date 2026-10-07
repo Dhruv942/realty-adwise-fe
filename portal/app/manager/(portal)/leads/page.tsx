@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { LeadsView, parseLeadQuery } from "@/components/leads/LeadsView";
 import { listManagerExecutives, listManagerLeads } from "@/lib/manager";
 
@@ -22,6 +23,7 @@ export default async function ManagerLeadsPage({ searchParams }: { searchParams:
 
   return (
     <>
+      <AutoRefresh />
       <div className="page-head">
         <div>
           <h1>Leads</h1>

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { LeadHistory } from "@/components/LeadHistory";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { LeadStatusForm } from "@/components/LeadForms";
-import { formatBudget, formatDate, slaDeadline, whatsappUrl } from "@/lib/format";
+import { SlaClock } from "@/components/SlaClock";
+import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
 import type { FormState, LeadDetail, Role } from "@/lib/types";
 import { AssignForm } from "./AssignForm";
 import { ImportantButton } from "./ImportantButton";
@@ -20,9 +21,11 @@ type Props = {
   /** Admin only: where to send the user when the lead has no executive. */
   propertyHref?: string;
   created?: boolean;
+  /** Response time in minutes, when the viewer can read the setting (admin). */
+  slaMinutes?: number;
 };
 
-export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, propertyHref, created }: Props) {
+export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, propertyHref, created, slaMinutes }: Props) {
   const pending = lead.status === "PENDING_ASSIGNMENT";
   const phone = lead.customer.mobile;
 
@@ -56,11 +59,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         </div>
       </div>
 
-      {role === "EXECUTIVE" && slaDeadline(lead.status, lead.assignedAt) && (
-        <p className="notice notice-warn" role="status">
-          Update the status by {slaDeadline(lead.status, lead.assignedAt)}, or this lead moves to the next executive. Opening it isn&apos;t enough.
-        </p>
-      )}
+      <SlaClock status={lead.status} assignedAt={lead.assignedAt} minutes={slaMinutes} role={role} executiveName={lead.assignedExecutive?.name} />
 
       {created && !pending && (
         <p className="notice notice-success" role="status">
@@ -106,8 +105,6 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
               <dd>{lead.source}</dd>
               <dt>Message</dt>
               <dd>{lead.message ?? "—"}</dd>
-              <dt>External ID</dt>
-              <dd>{lead.externalLeadId ?? "—"}</dd>
               <dt>Assigned</dt>
               <dd>{lead.assignedAt ? formatDate(lead.assignedAt) : "—"}</dd>
               <dt>Received</dt>

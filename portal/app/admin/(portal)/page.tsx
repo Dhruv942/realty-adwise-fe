@@ -1,6 +1,7 @@
 import { ArrowRight, Plus, UserPlus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { MetricStrip } from "@/components/MetricStrip";
 import { RecentLeadsTable } from "@/components/RecentLeadsTable";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default async function AdminOverview() {
 
   return (
     <>
+      <AutoRefresh />
       <div className="page-head">
         <div>
           <h1>

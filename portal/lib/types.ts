@@ -158,3 +158,18 @@ export type LeadTimeoutSetting = {
   updatedAt: string | null;
   updatedBy: { id: string; name: string } | null;
 };
+
+export type NotificationType = "LEAD_CREATED" | "LEAD_ASSIGNED" | "LEAD_REASSIGNED" | "LEAD_STATUS_UPDATED" | "SLA_WARNING" | "SLA_EXPIRED";
+
+export type AppNotification = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  entityType: "LEAD";
+  /** The lead id. */
+  entityId: string;
+  isRead: boolean;
+  createdAt: string;
+  readAt: string | null;
+};

@@ -8,6 +8,8 @@ import type { SessionUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/components/realtime/NotificationBell";
+import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
 import { NAV, SEARCH_ACTION, type NavItem } from "./nav";
 
 const ROLE_LABEL = { ADMIN: "Admin", MANAGER: "Manager", EXECUTIVE: "Executive" } as const;
@@ -95,6 +97,14 @@ function Brand({ role }: { role: SessionUser["role"] }) {
 }
 
 export function AppShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
+  return (
+    <RealtimeProvider user={user}>
+      <Shell user={user}>{children}</Shell>
+    </RealtimeProvider>
+  );
+}
+
+function Shell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const pathname = usePathname();
   const items = NAV[user.role];
   const primary = items.filter((i) => i.primary);
@@ -182,6 +192,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
             <Link href={SEARCH_ACTION[user.role]} className="grid size-11 place-items-center rounded-lg text-foreground hover:bg-muted sm:hidden" aria-label="Search leads">
               <Search className="size-5" aria-hidden="true" />
             </Link>
+            <NotificationBell />
             <ThemeToggle className="hidden sm:grid" tip="tip-left" />
           </div>
         </header>

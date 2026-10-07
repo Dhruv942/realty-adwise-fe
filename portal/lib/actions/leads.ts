@@ -9,7 +9,7 @@ import { setMyLeadStatus } from "@/lib/executive";
 import { echo, str, toFormState } from "@/lib/forms";
 import type { FormState, Lead, Role } from "@/lib/types";
 
-const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "externalLeadId", "requirement", "customerType"];
+const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "customerType"];
 
 export async function createLeadAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = echo(formData, FIELDS);
@@ -28,7 +28,6 @@ export async function createLeadAction(_prev: FormState, formData: FormData): Pr
   if (values.requirement) body.requirement = values.requirement;
   if (values.customerType) body.customerType = values.customerType;
   if (values.message) body.message = values.message;
-  if (values.externalLeadId) body.externalLeadId = values.externalLeadId;
 
   let id: string;
   try {

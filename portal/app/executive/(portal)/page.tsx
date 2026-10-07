@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { LeadsView, parseLeadQuery } from "@/components/leads/LeadsView";
-import { NewLeadWatcher } from "@/components/NewLeadWatcher";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { getLeadSummary, listMyLeads } from "@/lib/executive";
 import { LEAD_STATUSES } from "@/lib/types";
 
@@ -24,7 +24,7 @@ export default async function ExecutiveHome({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <NewLeadWatcher newLeads={summary.newLeads} />
+      <AutoRefresh />
       <div className="page-head">
         <div>
           <h1>

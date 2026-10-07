@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { LeadDetailView } from "@/components/leads/LeadDetailView";
 import { updateMyLeadStatusAction } from "@/lib/actions/leads";
 import { ApiError } from "@/lib/api";
@@ -24,5 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MyLeadPage({ params }: Props) {
   const { id } = await params;
   const lead = await load(id);
-  return <LeadDetailView lead={lead} role="EXECUTIVE" backHref="/executive" backLabel="My leads" statusAction={updateMyLeadStatusAction.bind(null, lead.id)} />;
+  return (
+    <>
+      <AutoRefresh />
+      <LeadDetailView lead={lead} role="EXECUTIVE" backHref="/executive" backLabel="My leads" statusAction={updateMyLeadStatusAction.bind(null, lead.id)} />
+    </>
+  );
 }
