@@ -73,6 +73,7 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
 
     (async () => {
       const first = await fetchToken();
+      if (!first) console.warn("[realtime] could not get a socket token from /auth/socket-token");
       if (cancelled || !first) return;
       socket = io(first.origin, {
         // A function, so every automatic reconnect uses the current token.
@@ -91,6 +92,7 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
       socket.on("disconnect", () => setConnected(false));
       socket.on("connect_error", (err) => {
         setConnected(false);
+        console.warn("[realtime] connect_error:", err.message);
         if (AUTH_ERRORS.includes(err.message)) signOut();
       });
       socket.on("auth:expired", signOut);
