@@ -1,4 +1,5 @@
 import "server-only";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSession } from "./session";
 import type { FieldErrors, Role } from "./types";
@@ -87,6 +88,20 @@ export async function apiRequest<T>(path: string, { method = "GET", body, query,
   return data as T;
 }
 
+export const TZ_COOKIE = "tz";
+
+/** The browser's IANA timezone (set by TimezoneSync), so "today" matches the user's calendar day. UTC when unknown or invalid. */
+async function browserTimezone(): Promise<string | undefined> {
+  const value = (await cookies()).get(TZ_COOKIE)?.value;
+  if (!value) return undefined;
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value });
+    return value;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Authenticated call for the given role. A 401 means the token expired, was revoked or the
  * user was deactivated, so the session is dropped and the user is sent back to login.
@@ -95,8 +110,11 @@ export async function authedRequest<T>(role: Role, path: string, options: Omit<R
   const session = await getSession();
   const signout = `/auth/signout?role=${role}&reason=expired`;
   if (!session || session.user.role !== role) redirect(signout);
+  // Lead reads and writes carry the follow-up `state`, which depends on the user's calendar day.
+  const tz = path.includes("/leads") ? await browserTimezone() : undefined;
+  const query = tz ? { tz, ...options.query } : options.query;
   try {
-    return await apiRequest<T>(path, { ...options, token: session.token });
+    return await apiRequest<T>(path, { ...options, query, token: session.token });
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect(signout);
     throw error;

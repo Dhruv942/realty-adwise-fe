@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { EnableNotifications } from "@/components/realtime/EnableNotifications";
 import { disablePush } from "@/lib/push-client";
 import { NotificationBell } from "@/components/realtime/NotificationBell";
+import { TimezoneSync } from "@/components/TimezoneSync";
 import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
 import { NAV, SEARCH_ACTION, type NavItem } from "./nav";
 
@@ -114,6 +115,7 @@ function Brand({ role }: { role: SessionUser["role"] }) {
 export function AppShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   return (
     <RealtimeProvider user={user}>
+      <TimezoneSync />
       <Shell user={user}>{children}</Shell>
     </RealtimeProvider>
   );

@@ -18,6 +18,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
       propertyId: query.propertyId || undefined,
       executiveId: query.executiveId || undefined,
       important: query.important || undefined,
+      followUp: query.followUp || undefined,
       limit: String(PAGE + 1), // one extra row tells us whether a next page exists
       offset: String((query.page - 1) * PAGE),
     }),

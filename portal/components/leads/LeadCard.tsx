@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
 import { setImportantAction } from "@/lib/actions/leads";
 import { EnquiryBadge } from "@/components/EnquiryBadge";
+import { FollowUpBadge } from "./FollowUpBadge";
 import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
 import type { Lead, Role } from "@/lib/types";
@@ -98,6 +99,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
           </span>
           {lead.enquiryType && <EnquiryBadge type={lead.enquiryType} />}
           {lead.isNew && <span className="tag-new !ml-0">New</span>}
+          {lead.followUp && <FollowUpBadge followUp={lead.followUp} className="self-center" />}
           {important && (
             <span className="inline-flex items-center gap-1 self-center text-xs font-medium text-warning">
               <Star className="size-3 fill-current" aria-hidden="true" />

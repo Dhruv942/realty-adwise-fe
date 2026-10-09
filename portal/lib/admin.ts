@@ -93,6 +93,7 @@ export type LeadFilters = {
   propertyId?: string;
   executiveId?: string;
   search?: string;
+  followUp?: string;
   limit?: string;
   offset?: string;
 };

@@ -8,6 +8,7 @@ import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
 import { ENQUIRY_LABEL, type FormState, type LeadDetail, type Role } from "@/lib/types";
 import { AssignForm } from "./AssignForm";
+import { FollowUpPanel } from "./FollowUpPanel";
 import { ImportantButton } from "./ImportantButton";
 
 type Props = {
@@ -123,6 +124,8 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         </div>
 
         <div className="side">
+          <FollowUpPanel role={role} leadId={lead.id} initial={lead.followUp} />
+
           {statusAction && (
             <section className="panel">
               <h2>Status</h2>

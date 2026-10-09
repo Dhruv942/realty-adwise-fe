@@ -15,6 +15,7 @@ export type ManagerLeadFilters = {
   propertyId?: string;
   search?: string;
   important?: string;
+  followUp?: string;
   limit?: string;
   offset?: string;
 };

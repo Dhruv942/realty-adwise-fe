@@ -17,6 +17,7 @@ export default async function ExecutiveHome({ searchParams }: { searchParams: Pr
       status: query.status || undefined,
       search: query.search.trim() || undefined,
       important: query.important || undefined,
+      followUp: query.followUp || undefined,
       limit: String(PAGE + 1),
       offset: String((query.page - 1) * PAGE),
     }),

@@ -17,6 +17,7 @@ export default async function ManagerLeadsPage({ searchParams }: { searchParams:
       status: query.status || undefined,
       executiveId: query.executiveId || undefined,
       important: query.important || undefined,
+      followUp: query.followUp || undefined,
       limit: String(PAGE + 1),
       offset: String((query.page - 1) * PAGE),
     }),

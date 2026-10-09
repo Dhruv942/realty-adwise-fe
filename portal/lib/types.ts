@@ -104,12 +104,26 @@ export type Lead = {
   enquiryType: EnquiryType | null;
   isImportant: boolean;
   isNew: boolean;
+  /** The lead's next follow-up, or null when nothing is scheduled. */
+  followUp: LeadFollowUp | null;
   assignedAt: string | null;
   /** The backend's SLA for the assigned executive, while the lead is Incoming. The portal only counts down to it. */
   sla: { minutes: number; deadline: string; now: string } | null;
   createdAt: string;
   updatedAt: string;
 };
+
+export type FollowUpState = "OVERDUE" | "TODAY" | "UPCOMING";
+export type LeadFollowUp = {
+  /** UTC ISO-8601 instant. */
+  at: string;
+  note: string | null;
+  /** Computed by the backend when the response was built; recompute from `at` on long-open screens. */
+  state: FollowUpState;
+  updatedBy: { id: string; name: string } | null;
+  updatedAt: string;
+};
+export const FOLLOW_UP_FILTERS = ["overdue", "today", "upcoming", "none"] as const;
 
 export type EnquiryType = "RENT" | "BUY";
 export const ENQUIRY_LABEL: Record<EnquiryType, string> = { RENT: "Rent", BUY: "Buy" };

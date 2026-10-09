@@ -7,7 +7,7 @@ import { authedRequest } from "@/lib/api";
 import { assignLeadAsManager, createLeadAsManager } from "@/lib/manager";
 import { setMyLeadStatus } from "@/lib/executive";
 import { echo, str, toFormState } from "@/lib/forms";
-import type { FormState, Lead, Role } from "@/lib/types";
+import type { FieldErrors, FormState, Lead, LeadFollowUp, Role } from "@/lib/types";
 
 const AREA: Record<Role, string> = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" };
 
@@ -102,4 +102,43 @@ export async function assignLeadAction(role: "ADMIN" | "MANAGER", id: string, _p
   }
   revalidatePath(`/${AREA[role]}`, "layout");
   return { status: "success", message: "Lead assigned." };
+}
+
+type FollowUpResult = { ok: true; followUp: LeadFollowUp | null } | { ok: false; message: string; fieldErrors?: FieldErrors };
+
+function followUpFailure(error: unknown): FollowUpResult {
+  const state = toFormState(error);
+  return { ok: false, message: state.message ?? "Couldn't update the follow-up. Try again.", fieldErrors: state.fieldErrors };
+}
+
+/** Schedules, changes or (with `at: null`) clears the lead's follow-up. `at` must be an ISO instant with an offset. */
+export async function setFollowUpAction(role: Role, id: string, at: string | null, note: string | null): Promise<FollowUpResult> {
+  const path = `/${AREA[role]}/leads/${encodeURIComponent(id)}/follow-up`;
+  try {
+    const lead = await authedRequest<Lead>(role, path, { method: "PUT", body: { followUpAt: at, followUpNote: note } });
+    revalidatePath(`/${AREA[role]}`, "layout");
+    return { ok: true, followUp: lead.followUp };
+  } catch (error) {
+    return followUpFailure(error);
+  }
+}
+
+export async function clearFollowUpAction(role: Role, id: string): Promise<FollowUpResult> {
+  try {
+    const lead = await authedRequest<Lead>(role, `/${AREA[role]}/leads/${encodeURIComponent(id)}/follow-up`, { method: "DELETE" });
+    revalidatePath(`/${AREA[role]}`, "layout");
+    return { ok: true, followUp: lead.followUp };
+  } catch (error) {
+    return followUpFailure(error);
+  }
+}
+
+/** Fresh follow-up, fetched when the edit dialog opens because someone else may have changed it. */
+export async function getFollowUpAction(role: Role, id: string): Promise<FollowUpResult> {
+  try {
+    const lead = await authedRequest<Lead>(role, `/${AREA[role]}/leads/${encodeURIComponent(id)}`);
+    return { ok: true, followUp: lead.followUp };
+  } catch (error) {
+    return followUpFailure(error);
+  }
 }

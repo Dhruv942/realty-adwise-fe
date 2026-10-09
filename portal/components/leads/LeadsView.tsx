@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { statusLabel } from "@/lib/format";
-import { LEAD_STATUSES, type Lead, type Role } from "@/lib/types";
+import { FOLLOW_UP_FILTERS, LEAD_STATUSES, type Lead, type Role } from "@/lib/types";
 import { LeadCard } from "./LeadCard";
 
-export type LeadQuery = { search: string; status: string; propertyId: string; executiveId: string; important: string; page: number };
+export type LeadQuery = { search: string; status: string; propertyId: string; executiveId: string; important: string; followUp: string; page: number };
 
 type Option = { id: string; name: string };
 
@@ -29,12 +29,13 @@ export function parseLeadQuery(sp: Record<string, string | undefined>, statuses:
     propertyId: sp.propertyId ?? "",
     executiveId: sp.executiveId ?? "",
     important: sp.important === "true" ? "true" : "",
+    followUp: (FOLLOW_UP_FILTERS as readonly string[]).includes(sp.followUp ?? "") ? sp.followUp! : "",
     page: Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1),
   };
 }
 
 export function LeadsView({ role, base, detailBase, leads, hasNext, query, properties, executives, statuses = LEAD_STATUSES, statusCounts, showExecutive = true }: Props) {
-  const filtered = Boolean(query.search || query.status || query.propertyId || query.executiveId || query.important);
+  const filtered = Boolean(query.search || query.status || query.propertyId || query.executiveId || query.important || query.followUp);
   const href = (n: number) => {
     const q = new URLSearchParams();
     if (query.search) q.set("search", query.search);
@@ -42,6 +43,7 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
     if (query.propertyId) q.set("propertyId", query.propertyId);
     if (query.executiveId) q.set("executiveId", query.executiveId);
     if (query.important) q.set("important", "true");
+    if (query.followUp) q.set("followUp", query.followUp);
     if (n > 1) q.set("page", String(n));
     return `${base}?${q}`;
   };
@@ -91,6 +93,16 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
             </select>
           </div>
         )}
+        <div className="field">
+          <label htmlFor="followUp">Follow-up</label>
+          <select id="followUp" name="followUp" defaultValue={query.followUp}>
+            <option value="">All</option>
+            <option value="overdue">Overdue</option>
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="none">None scheduled</option>
+          </select>
+        </div>
         <div className="field">
           <label htmlFor="important">Show</label>
           <select id="important" name="important" defaultValue={query.important}>
