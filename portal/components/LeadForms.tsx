@@ -57,7 +57,7 @@ export function CreateLeadForm({ action, executives }: { action: Action; executi
                 </option>
               ))}
             </select>
-            {err?.executiveId ? <p className="field-error">{err.executiveId}</p> : <p className="field-hint">The lead goes straight to this executive. Only executives in your teams are listed.</p>}
+            {err?.executiveId ? <p className="field-error">{err.executiveId}</p> : <p className="field-hint">The lead goes straight to this executive. Only executives who report to you are listed.</p>}
           </div>
         )}
         <Field label="Budget in rupees (optional)" name="budget" inputMode="numeric" defaultValue={v?.budget} error={err?.budget} hint="e.g. 8000000 for ₹80 Lakh." />

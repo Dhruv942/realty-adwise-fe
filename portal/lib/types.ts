@@ -16,19 +16,8 @@ export type SessionUser = {
   designation?: Designation;
 };
 
-export type TeamRef = { id: string; name: string; isActive: boolean };
-export type ManagerRef = { id: string; name: string };
-
-export type Team = {
-  id: string;
-  name: string;
-  description: string | null;
-  isActive: boolean;
-  manager?: ManagerRef | null;
-  executiveCount: number;
-  createdAt: string;
-  updatedAt: string;
-};
+/** The manager an executive reports to (there are no teams). */
+export type ManagerRef = { id: string; name: string; isActive: boolean };
 
 export type Executive = {
   id: string;
@@ -39,18 +28,17 @@ export type Executive = {
   role: "SALES" | "EXECUTIVE";
   designation?: Designation;
   isActive: boolean;
-  team: TeamRef | null;
+  manager: ManagerRef | null;
   createdAt: string;
   updatedAt: string;
 };
 
-export type TeamDetail = Team & { executives: Executive[] };
-
-export type Manager = Omit<Executive, "role" | "team"> & { role: "MANAGER"; team: TeamRef | null };
-export type ManagerDetail = Manager & { managedTeams: Team[] };
+/** Managers never have a manager of their own. */
+export type Manager = Omit<Executive, "role"> & { role: "MANAGER" };
+export type ManagerDetail = Manager & { executives: Executive[] };
 
 /** Raw login payload: executives come back with role `SALES`. */
-export type LoginResponse = { accessToken: string; user: Omit<SessionUser, "role"> & { role: Role | "SALES" } };
+export type LoginResponse = { accessToken: string; refreshToken?: string; user: Omit<SessionUser, "role"> & { role: Role | "SALES" } };
 
 export type FieldErrors = Record<string, string>;
 
@@ -69,6 +57,8 @@ export const LEAD_STATUSES = ["PENDING_ASSIGNMENT", "INCOMING", "RINGING", "CONN
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_SOURCES = ["99ACRES", "MAGICBRICKS"] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
+export const SOURCE_LABEL: Record<string, string> = { MAGICBRICKS: "Magicbricks", "99ACRES": "99acres" };
+export const sourceLabel = (source?: string | null) => (source ? SOURCE_LABEL[source] ?? source : "Unknown");
 
 export type Property = {
   id: string;

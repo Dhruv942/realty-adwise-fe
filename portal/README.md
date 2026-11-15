@@ -1,6 +1,6 @@
 # Realty Adwise Portal
 
-Next.js (App Router) frontend for the admin → teams → executives flow.
+Next.js (App Router) frontend for the admin → managers → executives flow.
 
 ## Run
 
@@ -36,9 +36,9 @@ proxy.ts                                 role gate for /admin and /executive
 lib/api.ts                               server-only fetch client, ApiError, 401 handling
 lib/session.ts                           cookie session helpers
 lib/admin.ts                             typed admin endpoints
-lib/actions/{auth,teams,executives}.ts   Server Actions
+lib/actions/{auth,executives}.ts   Server Actions
 app/admin/login                          admin sign in
-app/admin/(portal)/                      overview, teams, teams/[id], executives, executives/new, executives/[id]
+app/admin/(portal)/                      overview, managers, executives, executives/new, executives/[id]
 app/executive/login                      executive sign in
 app/executive/(portal)/                  executive home (verifies via /auth/me)
 app/auth/signout/route.ts                clears the cookie after a 401

@@ -18,6 +18,7 @@ export default async function ManagerLeadsPage({ searchParams }: { searchParams:
       executiveId: query.executiveId || undefined,
       important: query.important || undefined,
       followUp: query.followUp || undefined,
+      source: query.source || undefined,
       limit: String(PAGE + 1),
       offset: String((query.page - 1) * PAGE),
     }),
@@ -35,7 +36,7 @@ export default async function ManagerLeadsPage({ searchParams }: { searchParams:
           <Plus className="size-4" /> Add lead
         </Link>
       </div>
-      <p className="muted">Your teams&apos; leads, plus leads still waiting for an executive.</p>
+      <p className="muted">Your executives&apos; leads, plus leads still waiting for an executive.</p>
       <LeadsView
         role="MANAGER"
         base="/manager/leads"

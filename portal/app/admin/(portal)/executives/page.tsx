@@ -3,20 +3,20 @@ import Link from "next/link";
 import { ActionForm } from "@/components/ActionForm";
 import { StatusBadge } from "@/components/StatusBadge";
 import { deleteExecutiveAction } from "@/lib/actions/executives";
-import { listExecutives, listTeams } from "@/lib/admin";
+import { listExecutives, listManagers } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Executives" };
 
-type SearchParams = Promise<{ search?: string; isActive?: string; teamId?: string; deleted?: string }>;
+type SearchParams = Promise<{ search?: string; isActive?: string; managerId?: string; deleted?: string }>;
 
 export default async function ExecutivesPage({ searchParams }: { searchParams: SearchParams }) {
-  const { search = "", isActive = "", teamId = "", deleted } = await searchParams;
+  const { search = "", isActive = "", managerId = "", deleted } = await searchParams;
   const status = isActive === "true" || isActive === "false" ? isActive : "";
-  const [executives, teams] = await Promise.all([
-    listExecutives({ search: search.trim() || undefined, isActive: status || undefined, teamId: teamId || undefined }),
-    listTeams(),
+  const [executives, managers] = await Promise.all([
+    listExecutives({ search: search.trim() || undefined, isActive: status || undefined, managerId: managerId || undefined }),
+    listManagers({ isActive: "true" }),
   ]);
-  const filtered = Boolean(search || status || teamId);
+  const filtered = Boolean(search || status || managerId);
 
   return (
     <>
@@ -41,13 +41,12 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
           <input id="q" name="search" type="search" defaultValue={search} placeholder="Name, email or username" />
         </div>
         <div className="field">
-          <label htmlFor="team">Team</label>
-          <select id="team" name="teamId" defaultValue={teamId}>
-            <option value="">All teams</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-                {team.isActive ? "" : " (inactive)"}
+          <label htmlFor="manager">Manager</label>
+          <select id="manager" name="managerId" defaultValue={managerId}>
+            <option value="">All managers</option>
+            {managers.map((manager) => (
+              <option key={manager.id} value={manager.id}>
+                {manager.name}
               </option>
             ))}
           </select>
@@ -82,7 +81,7 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
               <th>Name</th>
               <th className="hidden md:table-cell">Email</th>
               <th className="hidden lg:table-cell">Phone</th>
-              <th className="hidden sm:table-cell">Team</th>
+              <th className="hidden sm:table-cell">Manager</th>
               <th>Status</th>
               <th className="col-actions">
                 <span className="sr-only">Actions</span>
@@ -105,7 +104,7 @@ export default async function ExecutivesPage({ searchParams }: { searchParams: S
                 </td>
                 <td className="hidden md:table-cell">{exec.email}</td>
                 <td className="hidden lg:table-cell">{exec.phone ?? <span className="muted">—</span>}</td>
-                <td className="hidden sm:table-cell">{exec.team ? <Link href={`/admin/teams/${exec.team.id}`}>{exec.team.name}</Link> : <span className="muted">No team</span>}</td>
+                <td className="hidden sm:table-cell">{exec.manager ? <Link href={`/admin/managers/${exec.manager.id}`}>{exec.manager.name}</Link> : <span className="muted">No manager</span>}</td>
                 <td>
                   <StatusBadge active={exec.isActive} />
                 </td>

@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { assignLeadAsAdmin, createLead, setLeadStatus, type NewLead } from "@/lib/admin";
+import { assignLeadAsAdmin, createLead, setLeadStatus, splitLeadAsAdmin, transferLeadAsAdmin, type NewLead } from "@/lib/admin";
 import { authedRequest } from "@/lib/api";
-import { assignLeadAsManager, createLeadAsManager } from "@/lib/manager";
+import { assignLeadAsManager, createLeadAsManager, splitLeadAsManager, transferLeadAsManager } from "@/lib/manager";
 import { setMyLeadStatus } from "@/lib/executive";
 import { echo, str, toFormState } from "@/lib/forms";
 import type { FieldErrors, FormState, Lead, LeadFollowUp, Role } from "@/lib/types";
@@ -102,6 +102,36 @@ export async function assignLeadAction(role: "ADMIN" | "MANAGER", id: string, _p
   }
   revalidatePath(`/${AREA[role]}`, "layout");
   return { status: "success", message: "Lead assigned." };
+}
+
+function ownershipValues(formData: FormData) {
+  return { targetExecutiveId: str(formData, "targetExecutiveId"), reason: str(formData, "reason") };
+}
+
+export async function transferLeadAction(role: "ADMIN" | "MANAGER", id: string, _prev: FormState, formData: FormData): Promise<FormState> {
+  const values = ownershipValues(formData);
+  if (!values.targetExecutiveId) return { status: "error", fieldErrors: { targetExecutiveId: "Choose an executive" }, values };
+  try {
+    await (role === "ADMIN" ? transferLeadAsAdmin : transferLeadAsManager)(id, values.targetExecutiveId, values.reason);
+  } catch (error) {
+    return toFormState(error, values);
+  }
+  revalidatePath(`/${AREA[role]}/leads/${id}`);
+  revalidatePath(`/${AREA[role]}/leads`, "layout");
+  return { status: "success", message: "Lead transferred." };
+}
+
+export async function splitLeadAction(role: "ADMIN" | "MANAGER", id: string, _prev: FormState, formData: FormData): Promise<FormState> {
+  const values = ownershipValues(formData);
+  if (!values.targetExecutiveId) return { status: "error", fieldErrors: { targetExecutiveId: "Choose an executive" }, values };
+  try {
+    await (role === "ADMIN" ? splitLeadAsAdmin : splitLeadAsManager)(id, values.targetExecutiveId, values.reason);
+  } catch (error) {
+    return toFormState(error, values);
+  }
+  revalidatePath(`/${AREA[role]}/leads/${id}`);
+  revalidatePath(`/${AREA[role]}/leads`, "layout");
+  return { status: "success", message: "Enquiry split." };
 }
 
 type FollowUpResult = { ok: true; followUp: LeadFollowUp | null } | { ok: false; message: string; fieldErrors?: FieldErrors };

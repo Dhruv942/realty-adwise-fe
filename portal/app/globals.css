@@ -217,6 +217,14 @@
   .btn-danger-solid:hover:not(:disabled) { background: color-mix(in srgb, var(--destructive) 88%, #000); }
   :root[data-theme="dark"] .btn-danger-solid { color: #0e0e0d; }
   .btn-sm { min-height: 32px; padding: 0 10px; font-size: 13px; }
+  .whatsapp-action { border-radius: 999px; }
+  .whatsapp-action-copy { border-color: color-mix(in srgb, #25d366 42%, var(--input)); color: color-mix(in srgb, #128c7e 78%, var(--foreground)); }
+  .whatsapp-action-copy:hover:not(:disabled) { border-color: #25d366; background: color-mix(in srgb, #25d366 10%, var(--surface)); }
+  .whatsapp-action-share { background: #128c7e; border-color: #128c7e; color: #fff; }
+  .whatsapp-action-share:hover:not(:disabled) { background: #0d796c; border-color: #0d796c; }
+  .whatsapp-action-share-icon { width: 13px !important; height: 13px !important; opacity: .75; }
+  .whatsapp-panel { border-color: color-mix(in srgb, #25d366 24%, var(--border)); }
+  :root[data-theme="dark"] .whatsapp-action-copy { color: #6ee7a0; }
   .link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .submit { display: inline-flex; flex-direction: column; gap: 6px; align-items: flex-start; }
   .hint { font-size: 13px; color: var(--muted-foreground); }
@@ -349,6 +357,7 @@
   }
   .toast button { background: none; border: 0; color: var(--muted-foreground); cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px; min-height: 24px; border-radius: 4px; }
   .toast button:hover { color: var(--foreground); }
+  .notification-message { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; color: var(--muted-foreground); }
   @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @media (min-width: 640px) { .toast { bottom: 20px; } }
 

@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/ActionForm";
-import { AssignTeamForm, EditExecutiveForm, ResetPasswordForm } from "@/components/ExecutiveForms";
+import { AssignManagerForm, EditExecutiveForm, ResetPasswordForm } from "@/components/ExecutiveForms";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
-  assignTeamAction,
+  assignManagerAction,
   deleteExecutiveAction,
-  removeTeamAction,
+  removeManagerAction,
   resetPasswordAction,
   setExecutiveStatusAction,
   updateExecutiveAction,
 } from "@/lib/actions/executives";
-import { getExecutive, listTeams } from "@/lib/admin";
+import { getExecutive, listManagers } from "@/lib/admin";
 import { ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ExecutivePage({ params, searchParams }: Props) {
   const [{ id }, { created }] = await Promise.all([params, searchParams]);
-  const [executive, activeTeams] = await Promise.all([loadExecutive(id), listTeams({ isActive: "true" })]);
-  const otherTeams = activeTeams.filter((t) => t.id !== executive.team?.id);
+  const [executive, activeManagers] = await Promise.all([loadExecutive(id), listManagers({ isActive: "true" })]);
+  const otherManagers = activeManagers.filter((m) => m.id !== executive.manager?.id);
 
   return (
     <>
@@ -53,7 +53,7 @@ export default async function ExecutivePage({ params, searchParams }: Props) {
 
       {created && (
         <p className="notice notice-success" role="status">
-          Executive created. They can now sign in at /executive/login with their email and password.
+          Executive created. They can now sign in with their email and password.
         </p>
       )}
 
@@ -79,12 +79,12 @@ export default async function ExecutivePage({ params, searchParams }: Props) {
               <dd>{executive.email}</dd>
               <dt>Phone</dt>
               <dd>{executive.phone ?? "—"}</dd>
-              <dt>Team</dt>
+              <dt>Manager</dt>
               <dd>
-                {executive.team ? (
-                  <Link href={`/admin/teams/${executive.team.id}`}>{executive.team.name}</Link>
+                {executive.manager ? (
+                  <Link href={`/admin/managers/${executive.manager.id}`}>{executive.manager.name}</Link>
                 ) : (
-                  "No team"
+                  "No manager"
                 )}
               </dd>
               <dt>Created</dt>
@@ -95,33 +95,29 @@ export default async function ExecutivePage({ params, searchParams }: Props) {
           </section>
 
           <section className="panel">
-            <h2>Team</h2>
-            {executive.team && !executive.team.isActive && (
-              <p className="notice notice-warn">The current team is inactive.</p>
+            <h2>Manager</h2>
+            {executive.manager && !executive.manager.isActive && (
+              <p className="notice notice-warn">The current manager is inactive.</p>
             )}
-            {otherTeams.length > 0 ? (
-              <AssignTeamForm
-                action={assignTeamAction.bind(null, executive.id)}
-                teams={otherTeams}
-                label={executive.team ? "Move to team" : "Assign team"}
+            <p className="field-hint">The manager sees this executive&apos;s leads and can assign leads and properties to them.</p>
+            {otherManagers.length > 0 ? (
+              <AssignManagerForm
+                action={assignManagerAction.bind(null, executive.id)}
+                managers={otherManagers}
+                label={executive.manager ? "Change manager" : "Assign manager"}
               />
             ) : (
               <p className="muted">
-                No other active teams. <Link href="/admin/teams#new">Create a team</Link>.
+                No other active managers. <Link href="/admin/managers/new">Create a manager</Link>.
               </p>
             )}
-            {executive.team && (
-              <>
-                <p className="field-hint">
-                  Executives who are the primary executive on a property can&apos;t leave that team.
-                </p>
-                <ActionForm
-                  action={removeTeamAction.bind(null, executive.id)}
-                  label="Remove from team"
-                  pendingLabel="Removing…"
-                  confirm={`Remove ${executive.name} from ${executive.team.name}?`}
-                />
-              </>
+            {executive.manager && (
+              <ActionForm
+                action={removeManagerAction.bind(null, executive.id)}
+                label="Remove manager"
+                pendingLabel="Removing…"
+                confirm={`Remove ${executive.manager.name} as ${executive.name}'s manager?`}
+              />
             )}
           </section>
 

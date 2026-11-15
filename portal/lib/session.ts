@@ -1,10 +1,8 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, loginPath, parseSession, tokenExpiry, type Session } from "./session-cookie";
+import { REFRESH_COOKIE, SESSION_COOKIE, cookieOptions, loginPath, parseSession, sessionCookies, type Session } from "./session-cookie";
 import type { Role, SessionUser } from "./types";
-
-const FALLBACK_TTL_MS = 60 * 60 * 1000;
 
 export async function getSession(): Promise<Session | null> {
   const store = await cookies();
@@ -18,21 +16,15 @@ export async function requireSession(role: Role): Promise<Session> {
   return session;
 }
 
-/** Server actions / route handlers only. */
-export async function setSession(token: string, user: SessionUser) {
-  const expiresAt = tokenExpiry(token) ?? Date.now() + FALLBACK_TTL_MS;
+/** Server actions / route handlers only. Stores the session (and the refresh token, when there is one) as httpOnly cookies. */
+export async function setSession(token: string, user: SessionUser, refreshToken?: string) {
   const store = await cookies();
-  store.set(SESSION_COOKIE, JSON.stringify({ token, user, expiresAt } satisfies Session), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)),
-  });
+  for (const c of sessionCookies({ accessToken: token, refreshToken, user })) store.set(c.name, c.value, cookieOptions(c.maxAge));
 }
 
 /** Server actions / route handlers only. */
 export async function clearSession() {
   const store = await cookies();
   store.delete(SESSION_COOKIE);
+  store.delete(REFRESH_COOKIE);
 }

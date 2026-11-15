@@ -1,6 +1,7 @@
 "use client";
 
-import { Clock, MessageCircle, Phone, Star } from "lucide-react";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { Clock, Phone, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
@@ -9,14 +10,15 @@ import { EnquiryBadge } from "@/components/EnquiryBadge";
 import { FollowUpBadge } from "./FollowUpBadge";
 import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
-import type { Lead, Role } from "@/lib/types";
+import { sourceLabel, type Lead, type Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { LeadOwnershipActions } from "./LeadOwnershipActions";
 
 const LONG_PRESS_MS = 550;
 const MOVE_TOLERANCE = 10;
 
 /** One lead. Long-press (or tap the star) toggles Important for the signed-in user. */
-export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lead; role: Role; href: string; showExecutive?: boolean }) {
+export function LeadCard({ lead, role, href, showExecutive = true, ownership }: { lead: Lead; role: Role; href: string; showExecutive?: boolean; ownership?: { executives: { id: string; name: string; designation?: string }[]; transferAction: (prev: import("@/lib/types").FormState, formData: FormData) => Promise<import("@/lib/types").FormState>; splitAction: (prev: import("@/lib/types").FormState, formData: FormData) => Promise<import("@/lib/types").FormState> } }) {
   const [important, setImportant] = useState(lead.isImportant);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -114,7 +116,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
         </p>
         <SlaClock variant="chip" sla={lead.sla} role={role} executiveName={lead.assignedExecutive?.name} />
         <p className="mt-1 text-xs text-muted-foreground">
-          {lead.source}
+          {sourceLabel(lead.source)}
           {showExecutive && <> · {lead.assignedExecutive ? lead.assignedExecutive.name : "Unassigned"}</>}
           {" · "}
           {formatDate(lead.assignedAt ?? lead.createdAt)}
@@ -140,7 +142,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
           aria-label={`WhatsApp ${lead.customer.name} (opens in a new tab)`}
           className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-input bg-surface px-2.5 text-[13px] font-medium no-underline transition-colors hover:bg-muted md:h-9 md:flex-none"
         >
-          <MessageCircle className="size-4" aria-hidden="true" /> WhatsApp
+              <WhatsAppIcon className="size-4" aria-hidden="true" /> WhatsApp
         </a>
         <button
           type="button"
@@ -159,6 +161,7 @@ export function LeadCard({ lead, role, href, showExecutive = true }: { lead: Lea
           {error ?? note}
         </p>
       )}
+      {ownership && <div className="col-span-full"><LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} splitAction={ownership.splitAction} /></div>}
     </article>
   );
 }

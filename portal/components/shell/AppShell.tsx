@@ -11,6 +11,7 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/s
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { EnableNotifications } from "@/components/realtime/EnableNotifications";
 import { disablePush } from "@/lib/push-client";
+import { AuthSync, broadcastLogout } from "@/components/AuthSync";
 import { NotificationBell } from "@/components/realtime/NotificationBell";
 import { TimezoneSync } from "@/components/TimezoneSync";
 import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
@@ -74,6 +75,7 @@ function LogoutButton({ rail, role }: { rail?: boolean; role: SessionUser["role"
         const form = e.currentTarget;
         await disablePush(role);
         unsubscribed.current = true;
+        broadcastLogout();
         form.requestSubmit();
       }}
     >
@@ -116,6 +118,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
   return (
     <RealtimeProvider user={user}>
       <TimezoneSync />
+      <AuthSync />
       <Shell user={user}>{children}</Shell>
     </RealtimeProvider>
   );

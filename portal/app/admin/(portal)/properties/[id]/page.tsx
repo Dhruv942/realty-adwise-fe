@@ -32,7 +32,7 @@ export default async function PropertyPage({ params }: Props) {
     listExecutives({ isActive: "true" }),
     listAssignmentHistory(id, { limit: "10" }).catch(() => []),
   ]);
-  const choices = executives.map((e) => ({ id: e.id, name: e.name, username: e.username, teamName: e.team?.name ?? null }));
+  const choices = executives.map((e) => ({ id: e.id, name: e.name, username: e.username, managerName: e.manager?.name ?? null }));
 
   return (
     <>

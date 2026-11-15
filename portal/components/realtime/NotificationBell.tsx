@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/format";
 import type { NotificationType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useRealtime } from "./RealtimeProvider";
+import { WhatsAppActionButtons } from "./WhatsAppActionButtons";
 
 const ICON: Record<NotificationType, typeof Bell> = {
   LEAD_CREATED: UserPlus,
@@ -18,7 +19,7 @@ const ICON: Record<NotificationType, typeof Bell> = {
 };
 
 export function NotificationBell() {
-  const { notifications, unreadCount, connected, leadHref, markRead, markAllRead } = useRealtime();
+  const { notifications, unreadCount, connected, leadHref, markRead, markAllRead, role, notify } = useRealtime();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export function NotificationBell() {
                 const Icon = ICON[n.type] ?? Bell;
                 const warn = n.type === "SLA_WARNING" || n.type === "SLA_EXPIRED";
                 return (
-                  <li key={n.id}>
+                  <li key={n.id} className={cn(!n.isRead && "bg-muted/30")}>
                     <button
                       type="button"
                       onClick={() => {
@@ -84,18 +85,21 @@ export function NotificationBell() {
                         setOpen(false);
                         router.push(leadHref(n.entityId));
                       }}
-                      className={cn("flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50", !n.isRead && "bg-muted/30")}
+                      className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50"
                     >
                       <span className={cn("mt-0.5 grid size-8 shrink-0 place-items-center rounded-full", warn ? "bg-warning-soft text-warning" : "bg-muted text-foreground")}>
                         <Icon className="size-4" aria-hidden="true" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-medium">{n.title}</span>
-                        <span className="block text-[13px] text-muted-foreground">{n.message}</span>
+                        {n.type === "LEAD_CREATED" ? <pre className="notification-message mt-1">{n.message}</pre> : <span className="block text-[13px] text-muted-foreground">{n.message}</span>}
                         <span className="mt-0.5 block text-xs text-subtle">{formatDate(n.createdAt)}</span>
                       </span>
                       {!n.isRead && <span aria-label="Unread" className="mt-2 size-2 shrink-0 rounded-full bg-accent-ink" />}
                     </button>
+                    {n.type === "LEAD_CREATED" && (role === "ADMIN" || role === "MANAGER") && (
+                      <WhatsAppActionButtons message={n.message} notify={notify} compact className="px-4 pb-3 pl-16" />
+                    )}
                   </li>
                 );
               })}

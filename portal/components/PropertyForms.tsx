@@ -31,7 +31,7 @@ export function EditPropertyForm({ action, property }: { action: Action; propert
   );
 }
 
-type Choice = { id: string; name: string; username: string; teamName: string | null };
+type Choice = { id: string; name: string; username: string; managerName: string | null };
 
 export function AssignExecutivesForm({
   action,
@@ -62,7 +62,7 @@ export function AssignExecutivesForm({
               </span>
               <span>
                 {c.name}
-                <span className="muted person-sub"> @{c.username}{c.teamName ? ` · ${c.teamName}` : ""}</span>
+                <span className="muted person-sub"> @{c.username}{c.managerName ? ` · ${c.managerName}` : ""}</span>
               </span>
             </label>
           ))}

@@ -1,32 +1,15 @@
 import "server-only";
 import { cache } from "react";
 import { authedRequest } from "./api";
-import type { AssignmentHistoryEntry, AssignmentRuleSetting, Customer, LeadTimeoutSetting, Manager, ManagerDetail, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail, Team, TeamDetail } from "./types";
+import type { AssignmentHistoryEntry, AssignmentRuleSetting, Customer, LeadTimeoutSetting, Manager, ManagerDetail, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail } from "./types";
+import { buildSplitRequest, buildTransferRequest, ownershipPath } from "./lead-ownership";
 
 const a = <T>(path: string, options?: Parameters<typeof authedRequest>[2]) => authedRequest<T>("ADMIN", path, options);
 const enc = encodeURIComponent;
 
-// ---- Teams ----
-
-export type TeamFilters = { isActive?: string; search?: string; managerId?: string };
-
-export const listTeams = (filters: TeamFilters = {}) => a<Team[]>("/admin/teams", { query: filters });
-
-// cache() dedupes the call when generateMetadata and the page both need the record.
-export const getTeam = cache((id: string) => a<TeamDetail>(`/admin/teams/${enc(id)}`));
-
-export const createTeam = (body: { name: string; description: string | null; managerId?: string | null }) =>
-  a<Team>("/admin/teams", { method: "POST", body });
-
-export const updateTeam = (id: string, body: { name?: string; description?: string | null; managerId?: string | null }) =>
-  a<Team>(`/admin/teams/${enc(id)}`, { method: "PATCH", body });
-
-export const setTeamStatus = (id: string, isActive: boolean) =>
-  a<Team>(`/admin/teams/${enc(id)}/status`, { method: "PATCH", body: { isActive } });
-
 // ---- Executives ----
 
-export type ExecutiveFilters = { teamId?: string; isActive?: string; search?: string };
+export type ExecutiveFilters = { managerId?: string; isActive?: string; search?: string };
 
 export type NewExecutive = {
   name: string;
@@ -34,7 +17,7 @@ export type NewExecutive = {
   username: string;
   password: string;
   phone: string | null;
-  teamId: string | null;
+  managerId: string | null;
   designation?: string;
 };
 
@@ -56,11 +39,11 @@ export const resetExecutivePassword = (id: string, password: string) =>
 export const setExecutiveStatus = (id: string, isActive: boolean) =>
   a<Executive>(`/admin/executives/${enc(id)}/status`, { method: "PATCH", body: { isActive } });
 
-export const assignExecutiveTeam = (id: string, teamId: string) =>
-  a<Executive>(`/admin/executives/${enc(id)}/team`, { method: "PATCH", body: { teamId } });
+export const assignExecutiveManager = (id: string, managerId: string) =>
+  a<Executive>(`/admin/executives/${enc(id)}/manager`, { method: "PATCH", body: { managerId } });
 
-export const removeExecutiveTeam = (id: string) =>
-  a<Executive>(`/admin/executives/${enc(id)}/team`, { method: "DELETE" });
+export const removeExecutiveManager = (id: string) =>
+  a<Executive>(`/admin/executives/${enc(id)}/manager`, { method: "DELETE" });
 
 export const deleteExecutive = (id: string) => a<unknown>(`/admin/executives/${enc(id)}`, { method: "DELETE" });
 
@@ -94,6 +77,7 @@ export type LeadFilters = {
   executiveId?: string;
   search?: string;
   followUp?: string;
+  source?: string;
   limit?: string;
   offset?: string;
 };
@@ -158,6 +142,12 @@ export const deleteManager = (id: string) => a<unknown>(`/admin/managers/${enc(i
 
 export const assignLeadAsAdmin = (id: string, executiveId: string) =>
   a<Lead>(`/admin/leads/${enc(id)}/assign`, { method: "PATCH", body: { executiveId } });
+
+export const transferLeadAsAdmin = (id: string, executiveId: string, reason?: string) =>
+  a<LeadDetail>(ownershipPath("ADMIN", id, "transfer"), buildTransferRequest(executiveId, reason));
+
+export const splitLeadAsAdmin = (id: string, executiveId: string, reason?: string) =>
+  a<LeadDetail>(ownershipPath("ADMIN", id, "split"), buildSplitRequest(executiveId, id, reason));
 
 // ---- Settings ----
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { idleState, type Executive, type FormState, type Team } from "@/lib/types";
+import { idleState, type Executive, type FormState, type Manager } from "@/lib/types";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
 import { SubmitButton } from "./SubmitButton";
@@ -54,28 +54,28 @@ export function ProfileFields({ state, executive, showDesignation = true }: { st
   );
 }
 
-function TeamSelect({
-  teams,
+function ManagerSelect({
+  managers,
   state,
   label,
   allowNone,
-  defaultTeamId = "",
+  defaultManagerId = "",
 }: {
-  teams: Team[];
+  managers: Manager[];
   state: FormState;
   label: string;
   allowNone: boolean;
-  defaultTeamId?: string;
+  defaultManagerId?: string;
 }) {
-  const error = state.fieldErrors?.teamId;
+  const error = state.fieldErrors?.managerId;
   return (
     <div className={`field${error ? " has-error" : ""}`}>
-      <label htmlFor="f-teamId">{label}</label>
-      <select id="f-teamId" name="teamId" defaultValue={state.values?.teamId ?? defaultTeamId} required={!allowNone}>
-        <option value="">{allowNone ? "No team for now" : "Choose a team"}</option>
-        {teams.map((team) => (
-          <option key={team.id} value={team.id}>
-            {team.name}
+      <label htmlFor="f-managerId">{label}</label>
+      <select id="f-managerId" name="managerId" defaultValue={state.values?.managerId ?? defaultManagerId} required={!allowNone}>
+        <option value="">{allowNone ? "No manager for now" : "Choose a manager"}</option>
+        {managers.map((manager) => (
+          <option key={manager.id} value={manager.id}>
+            {manager.name}
           </option>
         ))}
       </select>
@@ -84,7 +84,7 @@ function TeamSelect({
   );
 }
 
-export function CreateExecutiveForm({ action, teams, defaultTeamId }: { action: Action; teams: Team[]; defaultTeamId?: string }) {
+export function CreateExecutiveForm({ action, managers, defaultManagerId }: { action: Action; managers: Manager[]; defaultManagerId?: string }) {
   const [state, formAction] = useActionState(action, idleState);
   return (
     <form action={formAction} className="stack">
@@ -102,9 +102,9 @@ export function CreateExecutiveForm({ action, teams, defaultTeamId }: { action: 
           error={state.fieldErrors?.password}
           hint="At least 8 characters. Share it with the executive securely."
         />
-        <TeamSelect teams={teams} state={state} label="Team (optional)" allowNone defaultTeamId={defaultTeamId} />
+        <ManagerSelect managers={managers} state={state} label="Manager (optional)" allowNone defaultManagerId={defaultManagerId} />
       </div>
-      {teams.length === 0 && <p className="field-hint">No active teams yet. You can assign a team later.</p>}
+      {managers.length === 0 && <p className="field-hint">No active managers yet. You can assign one later.</p>}
       <div>
         <SubmitButton pendingLabel="Creating…">Create executive</SubmitButton>
       </div>
@@ -141,12 +141,12 @@ export function ResetPasswordForm({ action }: { action: Action }) {
   );
 }
 
-export function AssignTeamForm({ action, teams, label }: { action: Action; teams: Team[]; label: string }) {
+export function AssignManagerForm({ action, managers, label }: { action: Action; managers: Manager[]; label: string }) {
   const [state, formAction] = useActionState(action, idleState);
   return (
     <form action={formAction} className="stack">
       <FormMessage state={state} />
-      <TeamSelect teams={teams} state={state} label="Team" allowNone={false} />
+      <ManagerSelect managers={managers} state={state} label="Manager" allowNone={false} />
       <div>
         <SubmitButton variant="line" pendingLabel="Saving…">
           {label}

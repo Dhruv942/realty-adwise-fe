@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { statusLabel } from "@/lib/format";
-import { FOLLOW_UP_FILTERS, LEAD_STATUSES, type Lead, type Role } from "@/lib/types";
+import { FOLLOW_UP_FILTERS, LEAD_SOURCES, LEAD_STATUSES, sourceLabel, type Lead, type Role } from "@/lib/types";
 import { LeadCard } from "./LeadCard";
+import { splitLeadAction, transferLeadAction } from "@/lib/actions/leads";
 
-export type LeadQuery = { search: string; status: string; propertyId: string; executiveId: string; important: string; followUp: string; page: number };
+export type LeadQuery = { search: string; status: string; propertyId: string; executiveId: string; important: string; followUp: string; source: string; page: number };
 
 type Option = { id: string; name: string };
 
@@ -30,12 +31,13 @@ export function parseLeadQuery(sp: Record<string, string | undefined>, statuses:
     executiveId: sp.executiveId ?? "",
     important: sp.important === "true" ? "true" : "",
     followUp: (FOLLOW_UP_FILTERS as readonly string[]).includes(sp.followUp ?? "") ? sp.followUp! : "",
+    source: (LEAD_SOURCES as readonly string[]).includes(sp.source ?? "") ? sp.source! : "",
     page: Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1),
   };
 }
 
 export function LeadsView({ role, base, detailBase, leads, hasNext, query, properties, executives, statuses = LEAD_STATUSES, statusCounts, showExecutive = true }: Props) {
-  const filtered = Boolean(query.search || query.status || query.propertyId || query.executiveId || query.important || query.followUp);
+  const filtered = Boolean(query.search || query.status || query.propertyId || query.executiveId || query.important || query.followUp || query.source);
   const href = (n: number) => {
     const q = new URLSearchParams();
     if (query.search) q.set("search", query.search);
@@ -44,6 +46,7 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
     if (query.executiveId) q.set("executiveId", query.executiveId);
     if (query.important) q.set("important", "true");
     if (query.followUp) q.set("followUp", query.followUp);
+    if (query.source) q.set("source", query.source);
     if (n > 1) q.set("page", String(n));
     return `${base}?${q}`;
   };
@@ -104,6 +107,17 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
           </select>
         </div>
         <div className="field">
+          <label htmlFor="source">Source</label>
+          <select id="source" name="source" defaultValue={query.source}>
+            <option value="">All sources</option>
+            {LEAD_SOURCES.map((s) => (
+              <option key={s} value={s}>
+                {sourceLabel(s)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
           <label htmlFor="important">Show</label>
           <select id="important" name="important" defaultValue={query.important}>
             <option value="">All leads</option>
@@ -139,7 +153,17 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
             {leads.map((l) => (
               <li key={l.id}>
-                <LeadCard lead={l} role={role} href={`${detailBase}/${l.id}`} showExecutive={showExecutive} />
+                <LeadCard
+                  lead={l}
+                  role={role}
+                  href={`${detailBase}/${l.id}`}
+                  showExecutive={showExecutive}
+                  ownership={role === "ADMIN" || role === "MANAGER" ? {
+                    executives: (executives ?? []).map((e) => ({ ...e })),
+                    transferAction: transferLeadAction.bind(null, role, l.id),
+                    splitAction: splitLeadAction.bind(null, role, l.id),
+                  } : undefined}
+                />
               </li>
             ))}
           </ul>

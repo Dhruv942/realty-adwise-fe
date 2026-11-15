@@ -110,7 +110,7 @@ export default async function ManagersPage({ searchParams }: { searchParams: Sea
                   ) : (
                     <>
                       <strong>No managers yet</strong>
-                      <Link href="/admin/managers/new">Create the first manager</Link>, then make them the manager of a team.
+                      <Link href="/admin/managers/new">Create the first manager</Link>, then assign executives to them.
                     </>
                   )}
                 </td>

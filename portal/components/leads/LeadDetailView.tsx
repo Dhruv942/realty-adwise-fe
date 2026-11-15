@@ -1,4 +1,5 @@
-import { MessageCircle, Phone } from "lucide-react";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { Phone } from "lucide-react";
 import Link from "next/link";
 import { LeadHistory } from "@/components/LeadHistory";
 import { LeadStatusBadge } from "@/components/LeadStatusBadge";
@@ -6,10 +7,12 @@ import { LeadStatusForm } from "@/components/LeadForms";
 import { ActivityTimeline } from "@/components/leads/ActivityTimeline";
 import { SlaClock } from "@/components/SlaClock";
 import { formatBudget, formatDate, whatsappUrl } from "@/lib/format";
-import { ENQUIRY_LABEL, type FormState, type LeadDetail, type Role } from "@/lib/types";
+import { ENQUIRY_LABEL, sourceLabel, type FormState, type LeadDetail, type Role } from "@/lib/types";
 import { AssignForm } from "./AssignForm";
 import { FollowUpPanel } from "./FollowUpPanel";
 import { ImportantButton } from "./ImportantButton";
+import { LeadOwnershipActions } from "./LeadOwnershipActions";
+import { LeadWhatsAppActions } from "./LeadWhatsAppActions";
 
 type Props = {
   lead: LeadDetail;
@@ -20,12 +23,14 @@ type Props = {
   statusAction?: (prev: FormState, formData: FormData) => Promise<FormState>;
   /** Present when this role can assign or reassign. */
   assign?: { action: (prev: FormState, formData: FormData) => Promise<FormState>; executives: { id: string; name: string; designation?: string }[] };
+  ownership?: { transferAction: (prev: FormState, formData: FormData) => Promise<FormState>; splitAction: (prev: FormState, formData: FormData) => Promise<FormState>; executives: { id: string; name: string; designation?: string }[] };
   /** Admin only: where to send the user when the lead has no executive. */
   propertyHref?: string;
   created?: boolean;
+  whatsappMessage?: string;
 };
 
-export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, propertyHref, created }: Props) {
+export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, assign, ownership, propertyHref, created, whatsappMessage }: Props) {
   const pending = lead.status === "PENDING_ASSIGNMENT";
   const phone = lead.customer.mobile;
 
@@ -44,6 +49,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         <div className="flex flex-wrap items-center gap-2">
           <ImportantButton role={role} id={lead.id} initial={lead.isImportant} />
           <LeadStatusBadge status={lead.status} />
+          {ownership && <LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} splitAction={ownership.splitAction} />}
         </div>
       </div>
 
@@ -54,12 +60,14 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
             <Phone aria-hidden="true" /> Call<span className="hidden sm:inline"> {phone}</span>
           </a>
           <a href={whatsappUrl(phone)} target="_blank" rel="noopener noreferrer" className="btn btn-line min-h-11 no-underline sm:min-h-10" aria-label={`WhatsApp ${lead.customer.name} (opens in a new tab)`}>
-            <MessageCircle aria-hidden="true" /> WhatsApp
+            <WhatsAppIcon aria-hidden="true" /> WhatsApp
           </a>
         </div>
       </div>
 
       <SlaClock sla={lead.sla} role={role} executiveName={lead.assignedExecutive?.name} />
+
+      {whatsappMessage && (role === "ADMIN" || role === "MANAGER") && <LeadWhatsAppActions message={whatsappMessage} />}
 
       {created && !pending && (
         <p className="notice notice-success" role="status">
@@ -102,7 +110,13 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
               <dt>Budget</dt>
               <dd>{formatBudget(lead.budget)}</dd>
               <dt>Source</dt>
-              <dd>{lead.source}</dd>
+              <dd>{sourceLabel(lead.source)}</dd>
+              {lead.externalLeadId && (
+                <>
+                  <dt>External lead ID</dt>
+                  <dd>{lead.externalLeadId}</dd>
+                </>
+              )}
               <dt>Message</dt>
               <dd>{lead.message ?? "—"}</dd>
               <dt>Assigned</dt>

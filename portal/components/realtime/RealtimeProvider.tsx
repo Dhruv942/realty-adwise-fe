@@ -5,12 +5,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { io, type Socket } from "socket.io-client";
 import { listNotificationsAction, markAllNotificationsReadAction, markNotificationReadAction } from "@/lib/actions/notifications";
 import type { AppNotification, SessionUser } from "@/lib/types";
+import { WhatsAppActionButtons } from "./WhatsAppActionButtons";
+import { cn } from "@/lib/utils";
 
 const AUTH_ERRORS = ["Authentication token missing", "Invalid token", "Token expired", "Session expired, please log in again", "Authentication failed"];
 const LEAD_EVENTS = ["lead:created", "lead:assigned", "lead:reassigned", "lead:status-updated", "lead:sla-warning", "lead:sla-expired", "lead:activity-created"] as const;
 const AREA = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" } as const;
 
-type Toast = { id: number; title: string; message: string; href: string; tone: "info" | "warn" };
+type Toast = { id: number; title: string; message: string; href?: string; type?: AppNotification["type"]; tone: "info" | "warn"; feedback?: { message: string; tone: "info" | "warn" } };
 
 type Realtime = {
   connected: boolean;
@@ -19,6 +21,8 @@ type Realtime = {
   leadHref: (leadId: string) => string;
   markRead: (id: string) => void;
   markAllRead: () => void;
+  role: SessionUser["role"];
+  notify: (message: string, tone?: "info" | "warn") => void;
 };
 
 const Ctx = createContext<Realtime | null>(null);
@@ -107,7 +111,7 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
       socket.on("notification:new", (n: AppNotification) => {
         setNotifications((list) => [n, ...list.filter((x) => x.id !== n.id)].slice(0, 30));
         if (!n.isRead) setUnreadCount((c) => c + 1);
-        setToast({ id: Date.now(), title: n.title, message: n.message, href: leadHref(n.entityId), tone: n.type.startsWith("SLA_") ? "warn" : "info" });
+        setToast({ id: Date.now(), title: n.title, message: n.message, href: leadHref(n.entityId), type: n.type, tone: n.type.startsWith("SLA_") ? "warn" : "info" });
       });
     })();
 
@@ -120,7 +124,7 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
   }, [role, router, leadHref, loadNotifications, refreshSoon]);
 
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toast.type === "LEAD_CREATED") return;
     const t = setTimeout(() => setToast(null), toast.tone === "warn" ? 12000 : 7000);
     return () => clearTimeout(t);
   }, [toast]);
@@ -140,9 +144,15 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
     markAllNotificationsReadAction(role);
   }, [role]);
 
+  const notify = useCallback((message: string, tone: "info" | "warn" = "info") => {
+    setToast((current) => current?.type === "LEAD_CREATED"
+      ? { ...current, feedback: { message, tone } }
+      : { id: Date.now(), title: tone === "warn" ? "Attention" : "Copied", message, tone });
+  }, []);
+
   const value = useMemo(
-    () => ({ connected, unreadCount, notifications, leadHref, markRead, markAllRead }),
-    [connected, unreadCount, notifications, leadHref, markRead, markAllRead],
+    () => ({ connected, unreadCount, notifications, leadHref, markRead, markAllRead, role, notify }),
+    [connected, unreadCount, notifications, leadHref, markRead, markAllRead, role, notify],
   );
 
   return (
@@ -150,18 +160,18 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
       {children}
       {toast && (
         <div className="toast" role={toast.tone === "warn" ? "alert" : "status"} style={toast.tone === "warn" ? { borderLeftColor: "var(--warning)" } : undefined}>
-          <a
-            href={toast.href}
-            className="grid min-w-0 gap-0.5 no-underline"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push(toast.href);
-              setToast(null);
-            }}
-          >
-            <span className="font-semibold">{toast.title}</span>
-            <span className="text-[13px] font-normal text-muted-foreground">{toast.message}</span>
-          </a>
+          <div className="grid min-w-0 gap-2">
+            {toast.href ? (
+              <a href={toast.href} className="grid min-w-0 gap-0.5 no-underline" onClick={(e) => { e.preventDefault(); router.push(toast.href!); setToast(null); }}>
+                <span className="font-semibold">{toast.title}</span>
+              </a>
+            ) : <span className="font-semibold">{toast.title}</span>}
+            {toast.type === "LEAD_CREATED" ? <pre className="notification-message">{toast.message}</pre> : <span className="text-[13px] font-normal text-muted-foreground">{toast.message}</span>}
+            {toast.type === "LEAD_CREATED" && (role === "ADMIN" || role === "MANAGER") && (
+              <WhatsAppActionButtons message={toast.message} notify={notify} compact />
+            )}
+            {toast.feedback && <span className={cn("text-xs", toast.feedback.tone === "warn" ? "text-destructive" : "text-muted-foreground")} role={toast.feedback.tone === "warn" ? "alert" : "status"}>{toast.feedback.message}</span>}
+          </div>
           <button type="button" aria-label="Dismiss" onClick={() => setToast(null)}>
             ×
           </button>

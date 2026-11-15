@@ -45,7 +45,7 @@ export default async function ManagerPage({ params, searchParams }: Props) {
 
       {created && (
         <p className="notice notice-success" role="status">
-          Manager created. They can sign in at /manager/login. Next, make them the manager of a team.
+          Manager created. They can sign in with their email and password. Next, assign executives to them.
         </p>
       )}
 
@@ -64,19 +64,19 @@ export default async function ManagerPage({ params, searchParams }: Props) {
 
         <div className="side">
           <section className="panel">
-            <h2>Teams they lead</h2>
-            {manager.managedTeams?.length ? (
+            <h2>Their executives</h2>
+            {manager.executives?.length ? (
               <ul className="grid gap-2">
-                {manager.managedTeams.map((t) => (
-                  <li key={t.id}>
-                    <Link href={`/admin/teams/${t.id}`}>{t.name}</Link>
-                    <span className="muted"> · {t.executiveCount} executives</span>
+                {manager.executives.map((e) => (
+                  <li key={e.id}>
+                    <Link href={`/admin/executives/${e.id}`}>{e.name}</Link>
+                    <span className="muted"> · @{e.username}{e.isActive ? "" : " (inactive)"}</span>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="muted">
-                No teams yet. Pick this manager when you <Link href="/admin/teams#new">create</Link> or edit a team.
+                No executives yet. Choose this manager on an <Link href="/admin/executives">executive</Link>.
               </p>
             )}
           </section>
@@ -110,7 +110,7 @@ export default async function ManagerPage({ params, searchParams }: Props) {
               label="Delete manager"
               pendingLabel="Deleting…"
               variant="danger"
-              confirm={`Delete ${manager.name}? Their teams stay but will have no manager.`}
+              confirm={`Delete ${manager.name}? Their executives stay but will have no manager.`}
             />
           </section>
         </div>

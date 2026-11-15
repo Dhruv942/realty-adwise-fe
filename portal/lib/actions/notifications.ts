@@ -18,8 +18,8 @@ async function safe<T>(fallback: T, run: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function listNotificationsAction(role: Role): Promise<NotificationList> {
-  return safe(EMPTY, () => authedRequest<NotificationList>(role, "/notifications", { query: { limit: "30" } }));
+export async function listNotificationsAction(role: Role, limit = "30"): Promise<NotificationList> {
+  return safe(EMPTY, () => authedRequest<NotificationList>(role, "/notifications", { query: { limit } }));
 }
 
 export async function markNotificationReadAction(role: Role, id: string): Promise<boolean> {

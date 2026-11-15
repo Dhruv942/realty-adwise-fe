@@ -1,26 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AuthLayout } from "@/components/AuthLayout";
 import { getSession } from "@/lib/session";
-import { homePath } from "@/lib/session-cookie";
+import { LOGIN_PATH, homePath } from "@/lib/session-cookie";
 
 export default async function Home() {
   const session = await getSession();
-  if (session) redirect(homePath[session.user.role]);
-
-  return (
-    <AuthLayout eyebrow="Team portal" title="Sign in to continue" lede="Admins manage everything. Managers assign leads to their team. Executives work their leads.">
-      <div className="stack">
-        <Link className="btn btn-solid" href="/admin/login">
-          Admin sign in
-        </Link>
-        <Link className="btn btn-line" href="/manager/login">
-          Manager sign in
-        </Link>
-        <Link className="btn btn-line" href="/executive/login">
-          Executive sign in
-        </Link>
-      </div>
-    </AuthLayout>
-  );
+  redirect(session ? homePath[session.user.role] : LOGIN_PATH);
 }

@@ -5,7 +5,7 @@ import { AutoRefresh } from "@/components/AutoRefresh";
 import { MetricStrip } from "@/components/MetricStrip";
 import { RecentLeadsTable } from "@/components/RecentLeadsTable";
 import { Button } from "@/components/ui/button";
-import { listExecutives, listLeads, listProperties, listTeams } from "@/lib/admin";
+import { listExecutives, listLeads, listProperties } from "@/lib/admin";
 import { requireSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -21,23 +21,21 @@ function greeting() {
 }
 
 export default async function AdminOverview() {
-  const [{ user }, teams, executives, properties, leads] = await Promise.all([
+  const [{ user }, executives, properties, leads] = await Promise.all([
     requireSession("ADMIN"),
-    listTeams(),
     listExecutives(),
     listProperties(),
     listLeads({ limit: String(FETCH) }),
   ]);
 
   const activeExecutives = executives.filter((e) => e.isActive);
-  const withoutTeam = activeExecutives.filter((e) => !e.team).length;
-  const activeTeams = teams.filter((t) => t.isActive).length;
+  const withoutManager = activeExecutives.filter((e) => !e.manager).length;
   const needing = properties.filter((p) => p.needsAssignment && p.isActive);
   const pendingLeads = properties.reduce((sum, p) => sum + p.pendingLeadCount, 0);
   const today = day.format(new Date());
   const todayCount = leads.filter((l) => day.format(new Date(l.createdAt)) === today).length;
   const recent = leads.slice(0, RECENT);
-  const allClear = needing.length === 0 && withoutTeam === 0;
+  const allClear = needing.length === 0 && withoutManager === 0;
 
   return (
     <>
@@ -68,7 +66,7 @@ export default async function AdminOverview() {
           { href: "/admin/leads", label: "Leads today", value: leads.length >= FETCH && todayCount >= FETCH ? `${FETCH}+` : todayCount, note: "Received since midnight" },
           { href: "/admin/leads?status=PENDING_ASSIGNMENT", label: "Pending", value: pendingLeads, note: pendingLeads ? "Waiting for an executive" : "Nothing waiting", alert: pendingLeads > 0 },
           { href: "/admin/properties?assigned=false", label: "Need executives", value: needing.length, note: needing.length === 1 ? "Property without executives" : "Properties without executives", alert: needing.length > 0 },
-          { href: "/admin/executives?isActive=true", label: "Active executives", value: activeExecutives.length, note: withoutTeam ? `${withoutTeam} without a team` : `Across ${activeTeams} active ${activeTeams === 1 ? "team" : "teams"}` },
+          { href: "/admin/executives?isActive=true", label: "Active executives", value: activeExecutives.length, note: withoutManager ? `${withoutManager} without a manager` : "All have a manager" },
         ]}
       />
 
@@ -90,7 +88,7 @@ export default async function AdminOverview() {
           <h2 id="attention">Needs attention</h2>
           {allClear ? (
             <p className="rounded-xl border border-dashed border-border-strong px-4 py-6 text-center text-sm text-muted-foreground">
-              All caught up. Every active property has executives, and every executive is in a team.
+              All caught up. Every active property has executives, and every executive has a manager.
             </p>
           ) : (
             <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
@@ -116,14 +114,14 @@ export default async function AdminOverview() {
                   </Link>
                 </li>
               )}
-              {withoutTeam > 0 && (
+              {withoutManager > 0 && (
                 <li>
                   <Link href="/admin/executives?isActive=true" className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
                     <span className="min-w-0">
                       <span className="block font-medium">
-                        {withoutTeam} {withoutTeam === 1 ? "executive has" : "executives have"} no team
+                        {withoutManager} {withoutManager === 1 ? "executive has" : "executives have"} no manager
                       </span>
-                      <span className="block text-[13px] text-muted-foreground">Open Executives to add them to a team</span>
+                      <span className="block text-[13px] text-muted-foreground">Open Executives to assign them a manager</span>
                     </span>
                     <ArrowRight className="size-3.5 shrink-0" aria-hidden="true" />
                   </Link>

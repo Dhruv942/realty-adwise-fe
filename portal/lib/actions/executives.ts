@@ -3,11 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
-  assignExecutiveTeam,
+  assignExecutiveManager,
   createExecutive,
   deleteExecutive,
   getExecutive,
-  removeExecutiveTeam,
+  removeExecutiveManager,
   resetExecutivePassword,
   setExecutiveStatus,
   updateExecutive,
@@ -26,7 +26,7 @@ function password(formData: FormData, key = "password"): string {
 }
 
 export async function createExecutiveAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const values = echo(formData, [...PROFILE_FIELDS, "teamId", "designation"]);
+  const values = echo(formData, [...PROFILE_FIELDS, "managerId", "designation"]);
   let executive: Executive;
   try {
     executive = await createExecutive({
@@ -35,7 +35,7 @@ export async function createExecutiveAction(_prev: FormState, formData: FormData
       username: values.username.toLowerCase(),
       password: password(formData),
       phone: values.phone || null,
-      teamId: values.teamId || null,
+      managerId: values.managerId || null,
       designation: designationOf(formData),
     });
   } catch (error) {
@@ -93,26 +93,26 @@ export async function setExecutiveStatusAction(id: string, isActive: boolean): P
   return { status: "success", message: isActive ? "Executive activated." : "Executive deactivated." };
 }
 
-export async function assignTeamAction(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  const teamId = str(formData, "teamId");
-  if (!teamId) return { status: "error", fieldErrors: { teamId: "Choose a team" } };
+export async function assignManagerAction(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
+  const managerId = str(formData, "managerId");
+  if (!managerId) return { status: "error", fieldErrors: { managerId: "Choose a manager" } };
   try {
-    await assignExecutiveTeam(id, teamId);
+    await assignExecutiveManager(id, managerId);
   } catch (error) {
-    return toFormState(error, { teamId });
+    return toFormState(error, { managerId });
   }
   revalidatePath("/admin", "layout");
-  return { status: "success", message: "Team assigned." };
+  return { status: "success", message: "Manager assigned." };
 }
 
-export async function removeTeamAction(id: string): Promise<FormState> {
+export async function removeManagerAction(id: string): Promise<FormState> {
   try {
-    await removeExecutiveTeam(id);
+    await removeExecutiveManager(id);
   } catch (error) {
     return toFormState(error);
   }
   revalidatePath("/admin", "layout");
-  return { status: "success", message: "Removed from team." };
+  return { status: "success", message: "Manager removed." };
 }
 
 export async function deleteExecutiveAction(id: string): Promise<FormState> {
