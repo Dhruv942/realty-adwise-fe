@@ -75,7 +75,28 @@ export type Property = {
 };
 
 export type PropertyExecutive = { id: string; name: string; username: string; isActive: boolean };
-export type PropertyDetail = Property & { executives: PropertyExecutive[] };
+export type PropertyInquiry = {
+  id: string;
+  leadNo: number;
+  customer: { id: string; name: string };
+  source: LeadSource;
+  status: LeadStatus;
+  enquiryType: EnquiryType | null;
+  message: string | null;
+  assignedExecutive: { id: string; name: string } | null;
+  manager: { id: string; name: string } | null;
+  createdAt: string;
+  followUpAt: string | null;
+};
+export type PropertyInquiryPagination = { limit: number; offset: number; returned: number; total: number };
+export type PropertyDetail = Property & {
+  executives: PropertyExecutive[];
+  inquiryCount?: number;
+  assignedInquiryCount?: number;
+  pendingInquiryCount?: number;
+  inquiries?: PropertyInquiry[];
+  inquiryPagination?: PropertyInquiryPagination;
+};
 
 export type Lead = {
   id: string;

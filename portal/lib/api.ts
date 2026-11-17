@@ -120,3 +120,20 @@ export async function authedRequest<T>(role: Role, path: string, options: Omit<R
     throw error;
   }
 }
+
+/** Authenticated passthrough for backend attachments such as CSV and Excel-compatible exports. */
+export async function authedRawRequest(role: Role, path: string, query?: Query, init: RequestInit = {}): Promise<Response> {
+  const session = await getSession();
+  const signout = `/auth/signout?role=${role}&reason=expired`;
+  if (!session || session.user.role !== role) redirect(signout);
+  const url = new URL(BASE_URL + path);
+  for (const [key, value] of Object.entries(query ?? {})) if (value) url.searchParams.set(key, value);
+  let res: Response;
+  try {
+    res = await fetch(url, { ...init, headers: { Authorization: `Bearer ${session.token}`, ...(init.headers ?? {}) }, cache: "no-store", signal: AbortSignal.timeout(TIMEOUT_MS) });
+  } catch {
+    throw new ApiError(503, "Couldn't reach the report server. Try again.");
+  }
+  if (res.status === 401) redirect(signout);
+  return res;
+}

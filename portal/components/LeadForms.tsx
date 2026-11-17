@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, idleState, type FormState, type LeadStatus } from "@/lib/types";
 import { statusLabel } from "@/lib/format";
 import { Field } from "./Field";
@@ -9,10 +9,12 @@ import { SubmitButton } from "./SubmitButton";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-export function CreateLeadForm({ action, executives }: { action: Action; executives?: { id: string; name: string }[] }) {
+export function CreateLeadForm({ action, executives, properties }: { action: Action; executives?: { id: string; name: string }[]; properties?: { id: string; name: string }[] }) {
   const [state, formAction] = useActionState(action, idleState);
   const v = state.values;
   const err = state.fieldErrors;
+  const initialProperty = v?.propertyName && properties?.some((property) => property.name === v.propertyName) ? v.propertyName : "__new__";
+  const [propertyChoice, setPropertyChoice] = useState(initialProperty);
   return (
     <form action={formAction} className="stack">
       <FormMessage state={state} />
@@ -20,7 +22,20 @@ export function CreateLeadForm({ action, executives }: { action: Action; executi
         <Field label="Customer name" name="name" required maxLength={100} defaultValue={v?.name} error={err?.name} />
         <Field label="Mobile" name="mobile" type="tel" required defaultValue={v?.mobile} error={err?.mobile} hint="Any format, e.g. 98765 43210 or +91-98765-43210." />
         <Field label="Email (optional)" name="email" type="email" defaultValue={v?.email} error={err?.email} />
-        <Field label="Property name" name="propertyName" required defaultValue={v?.propertyName} error={err?.propertyName} hint="A new property is created automatically if the name is new." />
+        {properties ? (
+          <div className={`field${err?.propertyName ? " has-error" : ""}`}>
+            <label htmlFor="f-propertyName">Property name</label>
+            <select id="f-propertyName" name={propertyChoice === "__new__" ? "propertyChoice" : "propertyName"} required value={propertyChoice} onChange={(event) => setPropertyChoice(event.target.value)}>
+              <option value="">Choose a property</option>
+              {properties.map((property) => <option key={property.id} value={property.name}>{property.name}</option>)}
+              <option value="__new__">＋ Add new property</option>
+            </select>
+            {propertyChoice === "__new__" && <input name="propertyName" required placeholder="Enter new property name" defaultValue={initialProperty === "__new__" ? v?.propertyName : ""} className="mt-2" />}
+            {err?.propertyName ? <p className="field-error">{err.propertyName}</p> : <p className="field-hint">Choose an existing property or add a new one.</p>}
+          </div>
+        ) : (
+          <Field label="Property name" name="propertyName" required defaultValue={v?.propertyName} error={err?.propertyName} hint="A new property is created automatically if the name is new." />
+        )}
         <div className={`field${err?.source ? " has-error" : ""}`}>
           <label htmlFor="f-source">Source</label>
           <select id="f-source" name="source" required defaultValue={v?.source ?? ""}>

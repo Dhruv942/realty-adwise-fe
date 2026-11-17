@@ -70,7 +70,7 @@ export default async function AdminOverview() {
         ]}
       />
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-8">
         <RecentLeadsTable
           title="Recent leads"
           leads={recent}

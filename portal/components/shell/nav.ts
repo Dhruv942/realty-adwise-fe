@@ -1,15 +1,15 @@
-import { Building2, ContactRound, LayoutDashboard, ListChecks, Settings, UserCog, ArrowLeftRight, UserRound, UsersRound, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, Building2, ContactRound, LayoutDashboard, ListChecks, Settings, UserCog, ArrowLeftRight, UserRound, UsersRound, Users, type LucideIcon } from "lucide-react";
 import type { Role } from "@/lib/types";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon; /** Shown in the mobile bottom bar. */ primary?: boolean; exact?: boolean };
 
-// Only screens that exist today. Notifications, follow-ups, Important, managers and reports
-// are added here once their APIs are wired up.
+// Navigation follows the screens currently wired to portal APIs.
 export const NAV: Record<Role, NavItem[]> = {
   ADMIN: [
     { href: "/admin", label: "Overview", icon: LayoutDashboard, primary: true, exact: true },
     { href: "/admin/leads", label: "Leads", icon: ListChecks, primary: true },
     { href: "/admin/properties", label: "Properties", icon: Building2, primary: true },
+    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
     { href: "/admin/customers", label: "Clients", icon: ContactRound, primary: true },
     { href: "/admin/managers", label: "Managers", icon: UserCog },
     { href: "/admin/executives", label: "Executives", icon: UserRound },
@@ -20,10 +20,12 @@ export const NAV: Record<Role, NavItem[]> = {
     { href: "/manager", label: "Overview", icon: LayoutDashboard, primary: true, exact: true },
     { href: "/manager/leads", label: "Leads", icon: ListChecks, primary: true },
     { href: "/manager/executives", label: "My executives", icon: UsersRound, primary: true },
+    { href: "/manager/reports", label: "Reports", icon: BarChart3 },
     { href: "/manager/view", label: "Switch to Executive", icon: ArrowLeftRight },
   ],
   EXECUTIVE: [
     { href: "/executive", label: "My leads", icon: ListChecks, primary: true },
+    { href: "/executive/reports", label: "Reports", icon: BarChart3 },
   ],
 };
 

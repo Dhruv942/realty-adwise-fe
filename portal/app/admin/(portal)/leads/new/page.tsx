@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CreateLeadForm } from "@/components/LeadForms";
 import { createLeadAction } from "@/lib/actions/leads";
+import { listProperties } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Add lead" };
 
-export default function NewLeadPage() {
+export default async function NewLeadPage() {
+  const properties = await listProperties({ isActive: "true" });
+
   return (
     <>
       <div className="page-head">
@@ -17,7 +20,7 @@ export default function NewLeadPage() {
         </div>
       </div>
       <section className="panel">
-        <CreateLeadForm action={createLeadAction} />
+        <CreateLeadForm action={createLeadAction} properties={properties.map((property) => ({ id: property.id, name: property.name }))} />
       </section>
     </>
   );

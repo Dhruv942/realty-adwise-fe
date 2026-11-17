@@ -14,7 +14,7 @@ export function SheetContent({
   className,
   children,
 }: {
-  side?: "left" | "bottom";
+    side?: "left" | "right" | "bottom";
   title: string;
   className?: string;
   children: React.ReactNode;
@@ -27,6 +27,7 @@ export function SheetContent({
         className={cn(
           "fixed z-50 flex flex-col border-border bg-surface shadow-lg outline-none",
           side === "left" && "sheet-left inset-y-0 left-0 w-[85%] max-w-xs border-r",
+          side === "right" && "sheet-right inset-y-0 right-0 w-[92%] max-w-md border-l",
           side === "bottom" && "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl border-t pb-[env(safe-area-inset-bottom)]",
           className,
         )}

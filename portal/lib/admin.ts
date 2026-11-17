@@ -54,7 +54,7 @@ export type PropertyChanges = { name?: string; description?: string | null; loca
 
 export const listProperties = (filters: PropertyFilters = {}) => a<Property[]>("/admin/properties", { query: filters });
 
-export const getProperty = cache((id: string) => a<PropertyDetail>(`/admin/properties/${enc(id)}`));
+export const getProperty = cache((id: string, filters: { limit?: string; offset?: string } = {}) => a<PropertyDetail>(`/admin/properties/${enc(id)}`, { query: filters }));
 
 export const updateProperty = (id: string, body: PropertyChanges) =>
   a<Property>(`/admin/properties/${enc(id)}`, { method: "PATCH", body });

@@ -9,11 +9,11 @@ import { getProperty, listAssignmentHistory, listExecutives } from "@/lib/admin"
 import { ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string | undefined>> };
 
-async function loadProperty(id: string) {
+async function loadProperty(id: string, filters: { limit?: string; offset?: string } = {}) {
   try {
-    return await getProperty(id);
+    return await getProperty(id, filters);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 400)) notFound();
     throw error;
@@ -25,10 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: (await loadProperty(id)).name };
 }
 
-export default async function PropertyPage({ params }: Props) {
+export default async function PropertyPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const query = searchParams ? await searchParams : {};
+  const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
+  const offset = Math.max(0, Number(query.offset) || 0);
   const [property, executives, history] = await Promise.all([
-    loadProperty(id),
+    loadProperty(id, { limit: String(limit), offset: String(offset) }),
     listExecutives({ isActive: "true" }),
     listAssignmentHistory(id, { limit: "10" }).catch(() => []),
   ]);
@@ -61,6 +64,23 @@ export default async function PropertyPage({ params }: Props) {
           )}
         </p>
       )}
+
+      <section className="panel">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2>Inquiries</h2>
+            <p className="muted text-sm">Leads received for this property, including current ownership and follow-up status.</p>
+          </div>
+          <Link className="btn btn-line btn-sm" href={`/admin/leads?propertyId=${property.id}`}>View all leads</Link>
+        </div>
+        <div className="grid grid-cols-3 gap-2 py-2 sm:gap-3">
+          <div className="rounded-lg border border-border bg-muted/30 p-3"><span className="muted text-xs">Total</span><strong className="num mt-1 block text-xl">{property.inquiryCount ?? 0}</strong></div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3"><span className="muted text-xs">Assigned</span><strong className="num mt-1 block text-xl">{property.assignedInquiryCount ?? 0}</strong></div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3"><span className="muted text-xs">Pending</span><strong className="num mt-1 block text-xl">{property.pendingInquiryCount ?? 0}</strong></div>
+        </div>
+        {(property.inquiries ?? []).length === 0 ? <p className="muted py-5 text-sm">No inquiries found for this property.</p> : <div className="table-wrap"><table><thead><tr><th>Lead</th><th>Customer</th><th>Source / type</th><th>Status</th><th>Assigned to</th><th>Follow-up</th></tr></thead><tbody>{(property.inquiries ?? []).map((inquiry) => <tr key={inquiry.id}><td><Link className="person-name" href={`/admin/leads/${inquiry.id}`}>#{inquiry.leadNo}</Link><span className="muted person-sub block">{formatDate(inquiry.createdAt)}</span></td><td>{inquiry.customer.name}<span className="muted person-sub block max-w-48 truncate">{inquiry.message ?? "No message"}</span></td><td>{inquiry.source}<span className="muted person-sub block">{inquiry.enquiryType ?? "—"}</span></td><td><span className="badge badge-info">{inquiry.status}</span></td><td>{inquiry.assignedExecutive ? <>{inquiry.assignedExecutive.name}<span className="muted person-sub block">{inquiry.manager?.name ?? "No manager"}</span></> : <span className="muted">Unassigned</span>}</td><td className="muted">{inquiry.followUpAt ? formatDate(inquiry.followUpAt) : "Not scheduled"}</td></tr>)}</tbody></table></div>}
+        {property.inquiryPagination && property.inquiryPagination.total > 0 && <div className="pager mt-4"><span>{property.inquiryPagination.offset + 1}–{Math.min(property.inquiryPagination.offset + property.inquiryPagination.returned, property.inquiryPagination.total)} of {property.inquiryPagination.total}</span><span className="flex gap-2">{offset > 0 && <Link className="btn btn-line btn-sm" href={`/admin/properties/${property.id}?limit=${limit}&offset=${Math.max(0, offset - limit)}`}>Previous</Link>}{offset + limit < property.inquiryPagination.total && <Link className="btn btn-line btn-sm" href={`/admin/properties/${property.id}?limit=${limit}&offset=${offset + limit}`}>Next</Link>}</span></div>}
+      </section>
 
       <div className="cols">
         <div className="side">

@@ -5,11 +5,25 @@ import { LeadTimeoutForm } from "@/components/LeadTimeoutForm";
 import { saveAssignmentRuleAction, saveLeadTimeoutAction } from "@/lib/actions/settings";
 import { getAssignmentRule, getLeadTimeout, listProperties } from "@/lib/admin";
 import { formatDate } from "@/lib/format";
+import { ZohoMailIntegration } from "@/components/ZohoMailIntegration";
+import { getZohoStatus, type ZohoStatus } from "@/lib/zoho";
+import { ApiError } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Settings" };
 
-export default async function SettingsPage() {
-  const [setting, timeout, needing] = await Promise.all([getAssignmentRule(), getLeadTimeout(), listProperties({ assigned: "false", isActive: "true" })]);
+async function loadZohoStatus() {
+  try {
+    return { status: await getZohoStatus() };
+  } catch (error) {
+    if (error instanceof ApiError) return { error: error.message };
+    throw error;
+  }
+}
+
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const params = await searchParams;
+  const [setting, timeout, needing, zohoResult] = await Promise.all([getAssignmentRule(), getLeadTimeout(), listProperties({ assigned: "false", isActive: "true" }), loadZohoStatus()]);
+  const zohoStatus = "status" in zohoResult ? zohoResult.status as ZohoStatus : null;
 
   return (
     <>
@@ -82,6 +96,7 @@ export default async function SettingsPage() {
           </section>
         </div>
       </div>
+      <section className="mt-6"><div className="mb-3"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-ink">Email integration</p><h2 className="mt-1">Notifications</h2><p className="muted mt-1">Connect Zoho Mail to send assignment notifications from the CRM.</p></div><ZohoMailIntegration status={zohoStatus} loadError={"error" in zohoResult ? zohoResult.error : undefined} oauthResult={params.zoho === "connected" || params.zoho === "error" ? params.zoho : undefined} /></section>
     </>
   );
 }

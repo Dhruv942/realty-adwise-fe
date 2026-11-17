@@ -19,11 +19,11 @@ export function RecentLeadsTable({ title, leads, detailBase, allHref, empty }: {
       {leads.length === 0 ? (
         <div className="empty rounded-xl border border-dashed border-border-strong">{empty}</div>
       ) : (
-        <div className="table-wrap">
-          <table>
+        <div className="table-wrap recent-leads-wrap">
+          <table className="recent-leads-table">
             <thead>
               <tr>
-                <th scope="col" className="w-[38%]">Client</th>
+                <th scope="col">Client</th>
                 <th scope="col" className="hidden md:table-cell">Property</th>
                 <th scope="col" className="hidden xl:table-cell">Executive</th>
                 <th scope="col">Status</th>
@@ -43,18 +43,21 @@ export function RecentLeadsTable({ title, leads, detailBase, allHref, empty }: {
                       <span className="num shrink-0 text-xs text-muted-foreground">#{l.leadNo}</span>
                       {l.isImportant && <span className="shrink-0 text-xs font-medium text-warning">Important</span>}
                     </div>
-                    <div className="muted person-sub truncate">
+                    <div className="muted person-sub">
                       <span className="md:hidden">
                         {l.property.name}
                         {sub ? " · " : ""}
                       </span>
                       {sub}
+                      <span className="block truncate sm:hidden">
+                        {l.assignedExecutive ? `Executive: ${l.assignedExecutive.name}` : "Executive: Unassigned"}
+                      </span>
                     </div>
                   </td>
                   <td className="hidden md:table-cell">
-                    <span className="block max-w-[14rem] truncate">{l.property.name}</span>
+                    <span className="block break-words">{l.property.name}</span>
                   </td>
-                  <td className="hidden xl:table-cell">{l.assignedExecutive ? l.assignedExecutive.name : <span className="muted">Unassigned</span>}</td>
+                  <td className="hidden break-words xl:table-cell">{l.assignedExecutive ? l.assignedExecutive.name : <span className="muted">Unassigned</span>}</td>
                   <td>
                     <LeadStatusBadge status={l.status} />
                   </td>
