@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, idleState, type FormState, type LeadStatus } from "@/lib/types";
+import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, idleState, sourceLabel, type FormState, type LeadStatus } from "@/lib/types";
 import { statusLabel } from "@/lib/format";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
@@ -42,7 +42,7 @@ export function CreateLeadForm({ action, executives, properties }: { action: Act
             <option value="">Choose a source</option>
             {LEAD_SOURCES.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {sourceLabel(s)}
               </option>
             ))}
           </select>

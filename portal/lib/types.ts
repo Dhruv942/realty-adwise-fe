@@ -55,9 +55,9 @@ export const idleState: FormState = { status: "idle" };
 
 export const LEAD_STATUSES = ["PENDING_ASSIGNMENT", "INCOMING", "RINGING", "CONNECTED", "CLOSED", "LOST", "BROKER"] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
-export const LEAD_SOURCES = ["99ACRES", "MAGICBRICKS"] as const;
+export const LEAD_SOURCES = ["99ACRES", "MAGICBRICKS", "MANUAL"] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
-export const SOURCE_LABEL: Record<string, string> = { MAGICBRICKS: "Magicbricks", "99ACRES": "99acres" };
+export const SOURCE_LABEL: Record<string, string> = { MAGICBRICKS: "Magicbricks", "99ACRES": "99acres", MANUAL: "Manual" };
 export const sourceLabel = (source?: string | null) => (source ? SOURCE_LABEL[source] ?? source : "Unknown");
 
 export type Property = {
