@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { authedRequest } from "./api";
 import type { AssignmentHistoryEntry, AssignmentRuleSetting, Customer, LeadTimeoutSetting, Manager, ManagerDetail, CustomerDetail, Executive, Lead, LeadDetail, Property, PropertyDetail } from "./types";
-import { buildSplitRequest, buildTransferRequest, ownershipPath } from "./lead-ownership";
+import { buildTransferRequest, ownershipPath } from "./lead-ownership";
 
 const a = <T>(path: string, options?: Parameters<typeof authedRequest>[2]) => authedRequest<T>("ADMIN", path, options);
 const enc = encodeURIComponent;
@@ -88,6 +88,7 @@ export type NewLead = {
   email?: string;
   propertyName: string;
   source: string;
+  manualSubSource?: string;
   requirement?: string;
   enquiryType?: string;
   budget?: number;
@@ -144,10 +145,8 @@ export const assignLeadAsAdmin = (id: string, executiveId: string) =>
   a<Lead>(`/admin/leads/${enc(id)}/assign`, { method: "PATCH", body: { executiveId } });
 
 export const transferLeadAsAdmin = (id: string, executiveId: string, reason?: string) =>
-  a<LeadDetail>(ownershipPath("ADMIN", id, "transfer"), buildTransferRequest(executiveId, reason));
+  a<LeadDetail>(ownershipPath("ADMIN", id), buildTransferRequest(executiveId, reason));
 
-export const splitLeadAsAdmin = (id: string, executiveId: string, reason?: string) =>
-  a<LeadDetail>(ownershipPath("ADMIN", id, "split"), buildSplitRequest(executiveId, id, reason));
 
 // ---- Settings ----
 

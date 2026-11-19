@@ -175,6 +175,10 @@
   }
 }
 
+@layer components {
+  .lead-enquiry-radio { accent-color: var(--primary); }
+}
+
 /*
  * Shared component classes used by the server-rendered pages. They sit below the utilities layer so
  * a utility class always wins.

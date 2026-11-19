@@ -2,7 +2,7 @@ import Link from "next/link";
 import { statusLabel } from "@/lib/format";
 import { FOLLOW_UP_FILTERS, LEAD_SOURCES, LEAD_STATUSES, sourceLabel, type Lead, type Role } from "@/lib/types";
 import { LeadCard } from "./LeadCard";
-import { splitLeadAction, transferLeadAction } from "@/lib/actions/leads";
+import { transferLeadAction } from "@/lib/actions/leads";
 
 export type LeadQuery = { search: string; status: string; propertyId: string; executiveId: string; important: string; followUp: string; source: string; page: number };
 
@@ -161,7 +161,6 @@ export function LeadsView({ role, base, detailBase, leads, hasNext, query, prope
                   ownership={role === "ADMIN" || role === "MANAGER" ? {
                     executives: (executives ?? []).map((e) => ({ ...e })),
                     transferAction: transferLeadAction.bind(null, role, l.id),
-                    splitAction: splitLeadAction.bind(null, role, l.id),
                   } : undefined}
                 />
               </li>

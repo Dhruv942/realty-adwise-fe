@@ -23,7 +23,7 @@ type Props = {
   statusAction?: (prev: FormState, formData: FormData) => Promise<FormState>;
   /** Present when this role can assign or reassign. */
   assign?: { action: (prev: FormState, formData: FormData) => Promise<FormState>; executives: { id: string; name: string; designation?: string }[] };
-  ownership?: { transferAction: (prev: FormState, formData: FormData) => Promise<FormState>; splitAction: (prev: FormState, formData: FormData) => Promise<FormState>; executives: { id: string; name: string; designation?: string }[] };
+  ownership?: { transferAction: (prev: FormState, formData: FormData) => Promise<FormState>; executives: { id: string; name: string; designation?: string }[] };
   /** Admin only: where to send the user when the lead has no executive. */
   propertyHref?: string;
   created?: boolean;
@@ -49,7 +49,7 @@ export function LeadDetailView({ lead, role, backHref, backLabel, statusAction, 
         <div className="flex flex-wrap items-center gap-2">
           <ImportantButton role={role} id={lead.id} initial={lead.isImportant} />
           <LeadStatusBadge status={lead.status} />
-          {ownership && <LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} splitAction={ownership.splitAction} />}
+          {ownership && <LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} />}
         </div>
       </div>
 

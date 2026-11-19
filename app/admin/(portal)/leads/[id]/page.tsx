@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LeadDetailView } from "@/components/leads/LeadDetailView";
-import { assignLeadAction, splitLeadAction, transferLeadAction, updateLeadStatusAction } from "@/lib/actions/leads";
+import { assignLeadAction, transferLeadAction, updateLeadStatusAction } from "@/lib/actions/leads";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { getLead, listExecutives } from "@/lib/admin";
 import { ApiError } from "@/lib/api";
@@ -37,7 +37,7 @@ export default async function LeadPage({ params, searchParams }: Props) {
       backLabel="Leads"
       statusAction={updateLeadStatusAction.bind(null, lead.id)}
       assign={{ action: assignLeadAction.bind(null, "ADMIN", lead.id), executives: executives.map((e) => ({ id: e.id, name: e.name, designation: e.designation })) }}
-      ownership={{ transferAction: transferLeadAction.bind(null, "ADMIN", lead.id), splitAction: splitLeadAction.bind(null, "ADMIN", lead.id), executives: executives.map((e) => ({ id: e.id, name: e.name, designation: e.designation })) }}
+      ownership={{ transferAction: transferLeadAction.bind(null, "ADMIN", lead.id), executives: executives.map((e) => ({ id: e.id, name: e.name, designation: e.designation })) }}
       propertyHref={`/admin/properties/${lead.property.id}`}
       created={Boolean(created)}
       whatsappMessage={whatsappMessage}

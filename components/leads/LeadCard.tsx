@@ -18,7 +18,7 @@ const LONG_PRESS_MS = 550;
 const MOVE_TOLERANCE = 10;
 
 /** One lead. Long-press (or tap the star) toggles Important for the signed-in user. */
-export function LeadCard({ lead, role, href, showExecutive = true, ownership }: { lead: Lead; role: Role; href: string; showExecutive?: boolean; ownership?: { executives: { id: string; name: string; designation?: string }[]; transferAction: (prev: import("@/lib/types").FormState, formData: FormData) => Promise<import("@/lib/types").FormState>; splitAction: (prev: import("@/lib/types").FormState, formData: FormData) => Promise<import("@/lib/types").FormState> } }) {
+export function LeadCard({ lead, role, href, showExecutive = true, ownership }: { lead: Lead; role: Role; href: string; showExecutive?: boolean; ownership?: { executives: { id: string; name: string; designation?: string }[]; transferAction: (prev: import("@/lib/types").FormState, formData: FormData) => Promise<import("@/lib/types").FormState> } }) {
   const [important, setImportant] = useState(lead.isImportant);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -161,7 +161,7 @@ export function LeadCard({ lead, role, href, showExecutive = true, ownership }: 
           {error ?? note}
         </p>
       )}
-      {ownership && <div className="col-span-full"><LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} splitAction={ownership.splitAction} /></div>}
+      {ownership && <div className="col-span-full"><LeadOwnershipActions lead={lead} executives={ownership.executives} transferAction={ownership.transferAction} /></div>}
     </article>
   );
 }

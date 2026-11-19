@@ -89,7 +89,7 @@ export function CreateExecutiveForm({ action, managers, defaultManagerId }: { ac
   return (
     <form action={formAction} className="stack">
       <FormMessage state={state} />
-      <ProfileFields state={state} />
+      <ProfileFields state={state} showDesignation={false} />
       <div className="grid-2">
         <Field
           label="Password"

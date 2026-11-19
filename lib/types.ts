@@ -59,6 +59,9 @@ export const LEAD_SOURCES = ["99ACRES", "MAGICBRICKS", "MANUAL"] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
 export const SOURCE_LABEL: Record<string, string> = { MAGICBRICKS: "Magicbricks", "99ACRES": "99acres", MANUAL: "Manual" };
 export const sourceLabel = (source?: string | null) => (source ? SOURCE_LABEL[source] ?? source : "Unknown");
+export const MANUAL_SUB_SOURCES = ["WALK_IN", "SOCIAL_MEDIA", "REFERRAL", "PHONE", "OTHER"] as const;
+export type ManualSubSource = (typeof MANUAL_SUB_SOURCES)[number];
+export const MANUAL_SUB_SOURCE_LABEL: Record<ManualSubSource, string> = { WALK_IN: "Walk-in", SOCIAL_MEDIA: "Social media", REFERRAL: "Referral", PHONE: "Phone", OTHER: "Other" };
 
 export type Property = {
   id: string;
@@ -106,6 +109,7 @@ export type Lead = {
   requestedPropertyName: string;
   externalLeadId: string | null;
   source: LeadSource;
+  manualSubSource: ManualSubSource | null;
   customer: { id: string; name: string; mobile: string; email: string | null };
   property: { id: string; name: string; location: string | null };
   assignedExecutive: { id: string; name: string } | null;

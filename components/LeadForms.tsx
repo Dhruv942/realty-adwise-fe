@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, idleState, sourceLabel, type FormState, type LeadStatus } from "@/lib/types";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ENQUIRY_LABEL, LEAD_SOURCES, LEAD_STATUSES, MANUAL_SUB_SOURCES, MANUAL_SUB_SOURCE_LABEL, idleState, sourceLabel, type FormState, type LeadStatus } from "@/lib/types";
 import { statusLabel } from "@/lib/format";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
@@ -15,8 +16,9 @@ export function CreateLeadForm({ action, executives, properties }: { action: Act
   const err = state.fieldErrors;
   const initialProperty = v?.propertyName && properties?.some((property) => property.name === v.propertyName) ? v.propertyName : "__new__";
   const [propertyChoice, setPropertyChoice] = useState(initialProperty);
+  const [sourceChoice, setSourceChoice] = useState(v?.source ?? "");
   return (
-    <form action={formAction} className="stack">
+    <form key={state.status === "error" ? JSON.stringify(v ?? {}) : "clean"} action={formAction} className="stack">
       <FormMessage state={state} />
       <div className="grid-2">
         <Field label="Customer name" name="name" required maxLength={100} defaultValue={v?.name} error={err?.name} />
@@ -38,7 +40,7 @@ export function CreateLeadForm({ action, executives, properties }: { action: Act
         )}
         <div className={`field${err?.source ? " has-error" : ""}`}>
           <label htmlFor="f-source">Source</label>
-          <select id="f-source" name="source" required defaultValue={v?.source ?? ""}>
+          <select id="f-source" name="source" required value={sourceChoice} onChange={(event) => setSourceChoice(event.target.value)}>
             <option value="">Choose a source</option>
             {LEAD_SOURCES.map((s) => (
               <option key={s} value={s}>
@@ -48,13 +50,23 @@ export function CreateLeadForm({ action, executives, properties }: { action: Act
           </select>
           {err?.source && <p className="field-error">{err.source}</p>}
         </div>
+        {sourceChoice === "MANUAL" && (
+          <div className={`field${err?.manualSubSource ? " has-error" : ""}`}>
+            <label htmlFor="f-manualSubSource">Manual source (optional)</label>
+            <select id="f-manualSubSource" name="manualSubSource" defaultValue={v?.manualSubSource ?? ""}>
+              <option value="">Choose a source detail</option>
+              {MANUAL_SUB_SOURCES.map((value) => <option key={value} value={value}>{MANUAL_SUB_SOURCE_LABEL[value]}</option>)}
+            </select>
+            {err?.manualSubSource && <p className="field-error">{err.manualSubSource}</p>}
+          </div>
+        )}
         <Field label="Requirement (optional)" name="requirement" maxLength={200} defaultValue={v?.requirement} error={err?.requirement} hint="e.g. 3 BHK on Rent" />
         <fieldset className={`field${err?.enquiryType ? " has-error" : ""}`}>
           <legend>Looking to (optional)</legend>
           <div className="flex gap-5 pt-1">
             {(["RENT", "BUY"] as const).map((o) => (
               <label key={o} className="flex items-center gap-2">
-                <input type="radio" name="enquiryType" value={o} defaultChecked={v?.enquiryType === o} className="size-[18px] accent-primary" />
+                <input type="radio" name="enquiryType" value={o} defaultChecked={v?.enquiryType === o} className="lead-enquiry-radio size-[18px]" />
                 {ENQUIRY_LABEL[o]}
               </label>
             ))}
@@ -91,6 +103,10 @@ export function CreateLeadForm({ action, executives, properties }: { action: Act
 
 export function LeadStatusForm({ action, current }: { action: Action; current: LeadStatus }) {
   const [state, formAction] = useActionState(action, idleState);
+  const router = useRouter();
+  useEffect(() => {
+    if (state.status === "success") router.refresh();
+  }, [router, state.status]);
   return (
     <form action={formAction} className="stack">
       <FormMessage state={state} />

@@ -2,16 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { assignLeadAsAdmin, createLead, setLeadStatus, splitLeadAsAdmin, transferLeadAsAdmin, type NewLead } from "@/lib/admin";
+import { assignLeadAsAdmin, createLead, setLeadStatus, transferLeadAsAdmin, type NewLead } from "@/lib/admin";
 import { authedRequest } from "@/lib/api";
-import { assignLeadAsManager, createLeadAsManager, splitLeadAsManager, transferLeadAsManager } from "@/lib/manager";
+import { assignLeadAsManager, createLeadAsManager, transferLeadAsManager } from "@/lib/manager";
 import { setMyLeadStatus } from "@/lib/executive";
 import { echo, str, toFormState } from "@/lib/forms";
 import type { FieldErrors, FormState, Lead, LeadFollowUp, Role } from "@/lib/types";
 
 const AREA: Record<Role, string> = { ADMIN: "admin", MANAGER: "manager", EXECUTIVE: "executive" };
 
-const FIELDS = ["name", "mobile", "email", "propertyName", "source", "budget", "message", "requirement", "enquiryType", "executiveId"];
+const FIELDS = ["name", "mobile", "email", "propertyName", "source", "manualSubSource", "budget", "message", "requirement", "enquiryType", "executiveId"];
 
 async function createLeadFor(role: "ADMIN" | "MANAGER", formData: FormData): Promise<FormState> {
   const values = echo(formData, FIELDS);
@@ -25,6 +25,7 @@ async function createLeadFor(role: "ADMIN" | "MANAGER", formData: FormData): Pro
     propertyName: values.propertyName,
     source: values.source,
   };
+  if (values.source === "MANUAL" && values.manualSubSource) body.manualSubSource = values.manualSubSource;
   if (values.email) body.email = values.email;
   if (budgetRaw) body.budget = Number(budgetRaw);
   if (values.requirement) body.requirement = values.requirement;
@@ -119,19 +120,6 @@ export async function transferLeadAction(role: "ADMIN" | "MANAGER", id: string, 
   revalidatePath(`/${AREA[role]}/leads/${id}`);
   revalidatePath(`/${AREA[role]}/leads`, "layout");
   return { status: "success", message: "Lead transferred." };
-}
-
-export async function splitLeadAction(role: "ADMIN" | "MANAGER", id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  const values = ownershipValues(formData);
-  if (!values.targetExecutiveId) return { status: "error", fieldErrors: { targetExecutiveId: "Choose an executive" }, values };
-  try {
-    await (role === "ADMIN" ? splitLeadAsAdmin : splitLeadAsManager)(id, values.targetExecutiveId, values.reason);
-  } catch (error) {
-    return toFormState(error, values);
-  }
-  revalidatePath(`/${AREA[role]}/leads/${id}`);
-  revalidatePath(`/${AREA[role]}/leads`, "layout");
-  return { status: "success", message: "Enquiry split." };
 }
 
 type FollowUpResult = { ok: true; followUp: LeadFollowUp | null } | { ok: false; message: string; fieldErrors?: FieldErrors };

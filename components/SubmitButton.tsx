@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 type Props = {
@@ -14,10 +14,9 @@ type Props = {
   confirm?: string;
 };
 
-/** Submit button that shows progress, and explains the wait when the backend is cold-starting. */
+/** Submit button that shows progress while the action is running. */
 export function SubmitButton({ children, pendingLabel = "Working…", variant = "solid", size, confirm }: Props) {
   const { pending } = useFormStatus();
-  const slow = useSlow(pending);
   const ref = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -59,15 +58,9 @@ export function SubmitButton({ children, pendingLabel = "Working…", variant = 
       ) : (
         button
       )}
-      {slow && process.env.NEXT_PUBLIC_SHOW_WAKEUP_HINT && (
-        <span className="hint" role="status">
-          The server is waking up. This can take about 30 seconds.
-        </span>
-      )}
     </span>
   );
 }
-
 function ConfirmDialog({ message, actionLabel, destructive, onConfirm }: { message: string; actionLabel: string; destructive: boolean; onConfirm: () => void }) {
   const split = message.search(/[?.]\s/);
   const title = split === -1 ? message : message.slice(0, split + 1);
@@ -99,17 +92,4 @@ function ConfirmDialog({ message, actionLabel, destructive, onConfirm }: { messa
       </Dialog.Content>
     </Dialog.Portal>
   );
-}
-
-function useSlow(pending: boolean, afterMs = 4000) {
-  const [slow, setSlow] = useState(false);
-  useEffect(() => {
-    if (!pending) {
-      setSlow(false);
-      return;
-    }
-    const timer = setTimeout(() => setSlow(true), afterMs);
-    return () => clearTimeout(timer);
-  }, [pending, afterMs]);
-  return slow;
 }

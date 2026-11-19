@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { idleState, type FormState, type Property, type PropertyExecutive } from "@/lib/types";
 import { Field } from "./Field";
 import { FormMessage } from "./FormMessage";
@@ -45,7 +46,11 @@ export function AssignExecutivesForm({
   inactiveSelected: PropertyExecutive[];
 }) {
   const [state, formAction] = useActionState(action, idleState);
+  const router = useRouter();
   const chosen = new Set(selected);
+  useEffect(() => {
+    if (state.status === "success") router.refresh();
+  }, [router, state.status]);
   return (
     <form action={formAction} className="stack">
       <FormMessage state={state} />

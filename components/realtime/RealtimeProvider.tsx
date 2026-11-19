@@ -6,6 +6,7 @@ import { io, type Socket } from "socket.io-client";
 import { listNotificationsAction, markAllNotificationsReadAction, markNotificationReadAction } from "@/lib/actions/notifications";
 import type { AppNotification, SessionUser } from "@/lib/types";
 import { WhatsAppActionButtons } from "./WhatsAppActionButtons";
+import { NotificationMessage } from "./NotificationMessage";
 import { cn } from "@/lib/utils";
 
 const AUTH_ERRORS = ["Authentication token missing", "Invalid token", "Token expired", "Session expired, please log in again", "Authentication failed"];
@@ -166,7 +167,7 @@ export function RealtimeProvider({ user, children }: { user: SessionUser; childr
                 <span className="font-semibold">{toast.title}</span>
               </a>
             ) : <span className="font-semibold">{toast.title}</span>}
-            {toast.type === "LEAD_CREATED" ? <pre className="notification-message">{toast.message}</pre> : <span className="text-[13px] font-normal text-muted-foreground">{toast.message}</span>}
+            {toast.type === "LEAD_CREATED" ? <NotificationMessage message={toast.message} className="notification-message" /> : <NotificationMessage message={toast.message} className="text-[13px] font-normal text-muted-foreground" />}
             {toast.type === "LEAD_CREATED" && (role === "ADMIN" || role === "MANAGER") && (
               <WhatsAppActionButtons message={toast.message} notify={notify} compact />
             )}

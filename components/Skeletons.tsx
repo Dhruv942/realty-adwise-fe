@@ -14,7 +14,6 @@ function Frame({ children }: { children: React.ReactNode }) {
     <div role="status" aria-live="polite" className="grid gap-5 sm:gap-6">
       <span className="sr-only">Loading…</span>
       {children}
-      {process.env.NEXT_PUBLIC_SHOW_WAKEUP_HINT && <p className="hint">If the server was idle, the first load can take about 30 seconds.</p>}
     </div>
   );
 }

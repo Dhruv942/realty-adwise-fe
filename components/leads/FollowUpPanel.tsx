@@ -54,6 +54,7 @@ export function FollowUpPanel({ role, leadId, initial }: { role: Role; leadId: s
             role={role}
             leadId={leadId}
             current={followUp}
+            open={open}
             onSaved={(next, message) => {
               setFollowUp(next);
               setOpen(false);
@@ -72,7 +73,7 @@ export function FollowUpPanel({ role, leadId, initial }: { role: Role; leadId: s
   );
 }
 
-function EditDialog({ role, leadId, current, onSaved }: { role: Role; leadId: string; current: LeadFollowUp | null; onSaved: (next: LeadFollowUp | null, message: string) => void }) {
+function EditDialog({ role, leadId, current, open, onSaved }: { role: Role; leadId: string; current: LeadFollowUp | null; open: boolean; onSaved: (next: LeadFollowUp | null, message: string) => void }) {
   const [latest, setLatest] = useState(current);
   const [loading, setLoading] = useState(true);
   const [at, setAt] = useState("");
@@ -86,7 +87,12 @@ function EditDialog({ role, leadId, current, onSaved }: { role: Role; leadId: st
 
   // Someone else may have changed it, so load the lead afresh each time the dialog opens.
   useEffect(() => {
+    if (!open) return;
     let alive = true;
+    setLoading(true);
+    setErrors({});
+    setMessage(null);
+    setConfirmClear(false);
     getFollowUpAction(role, leadId).then((result) => {
       if (!alive) return;
       const fresh = result.ok ? result.followUp : current;
@@ -99,7 +105,7 @@ function EditDialog({ role, leadId, current, onSaved }: { role: Role; leadId: st
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, leadId]);
+  }, [current, leadId, open, role]);
 
   function finish(result: Awaited<ReturnType<typeof setFollowUpAction>>, done: string) {
     if (result.ok) return onSaved(result.followUp, done);
@@ -187,7 +193,7 @@ function EditDialog({ role, leadId, current, onSaved }: { role: Role; leadId: st
                     <Loader2 className="animate-spin" aria-hidden="true" /> Saving…
                   </>
                 ) : (
-                  "Save"
+                  "Save follow-up"
                 )}
               </button>
             </div>
